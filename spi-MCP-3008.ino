@@ -54,7 +54,7 @@ void loop() {
   do {
     intervalTimer.restart();
     readSPI(0, B00000001, B10000000);
-  }while (sampleOut[0].V < trig);
+  }while (sampleOut[0].V < trig);                     //this is the trigger code
 
   sample0Time = micros();
   //Serial.println(intervalTimer.elapsed());
@@ -106,8 +106,6 @@ void readSPI(int arrayNum, byte startBit, byte modeChannel) {
   //get the digital number from the ADC
   digitalWrite(CS, LOW); //turn on the chip select (CS)
 
-  //40 ns delay for ADS8634 clock...?
-  
   SPI.transfer(startBit); //sending the start bit and receiving garbage
   sampleIn[arrayNum].b2 = SPI.transfer(modeChannel); //sending the mode and channel and recieving the two MSB
   sampleIn[arrayNum].b3 = SPI.transfer(0); //receiving the last 8 bits
