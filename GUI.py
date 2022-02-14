@@ -58,8 +58,19 @@ options = [
                      sg.Text('High Level'), sg.Input(size=(4, 18), key='HighL')]
                 ],
             title_color='yellow',
-            border_width = 10)]
-         ]
+            border_width = 10)],
+         
+           [sg.Frame('Horizontal',
+                [
+                    [sg.Slider(range=(2, 10), orientation='h', size=(15, 25),  default_value=2, resolution=2,
+                               tick_interval=2, disable_number_display=True, key='HScale'),
+                    sg.Spin(values=('1us', '100us', '1ms', '10ms', '100ms'), size=(12, 20), initial_value='1V',
+                               font=('Helvetica', 8), key='Horiz1Scale')]
+                ],
+
+            title_color='yellow',
+            border_width = 10)],
+]
 
 #---------------Data that Alex will supply with his code.  this is just a data set for an example ------------------
 ch1fns = ['Ch1', '4.0 V', '1 Hz', '2.83 V', '-2.0 V', '2.0 V']
