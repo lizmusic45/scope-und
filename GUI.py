@@ -58,7 +58,8 @@ options = [
                      sg.Text('High Level'), sg.Input(size=(4, 18), key='HighL')]
                 ],
             title_color='yellow',
-            border_width = 10)]
+            border_width = 10)],
+               
          ]
 
 #---------------Data that Alex will supply with his code.  this is just a data set for an example ------------------
