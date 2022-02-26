@@ -51,11 +51,11 @@ options = [
                      sg.Radio('Ch3', 'rd_triggers', key='Trig3'),
                      sg.Radio('Ch4', 'rd_triggers', key='Trig4')],
 
-                    [sg.Text('Rise'), sg.Radio('', 'rd_triggers', key='Rise'),
-                     sg.Text('Fall'), sg.Radio('', 'rd_triggers', key='Fall')],
+                    [sg.Text('Rise'), sg.Radio('', 'rd_risefall', key='Rise'),
+                     sg.Text('Fall'), sg.Radio('', 'rd_risefall', key='Fall')],
 
-                    [sg.Text('Low Level'), sg.Input(size=(4,18), key='LowL'),
-                     sg.Text('High Level'), sg.Input(size=(4, 18), key='HighL')]
+                    [sg.Text('Low Level'), sg.Input(size=(4,18), default_text = '0', key='LowL'),
+                     sg.Text('High Level'), sg.Input(size=(4, 18), default_text = '0.1', key='HighL')]
                 ],
             title_color='yellow',
             border_width = 10)]
@@ -64,7 +64,7 @@ options = [
                 [
                     [sg.Slider(range=(2, 10), orientation='h', size=(15, 25), default_value=2, resolution=2,
                                tick_interval=2, disable_number_display=True, key='HScale'),
-                     sg.Spin(values=('1us', '100us', '1ms', '10ms', '100ms'), size=(12, 20), initial_value='1V',
+                     sg.Spin(values=('1us', '100us', '1ms', '10ms', '100ms'), size=(12, 20), initial_value='1ms',
                              font=('Helvetica', 8), key='Horiz1Scale')]
                 ],
             title_color='yellow',
