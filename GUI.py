@@ -10,6 +10,14 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # set the theme for the screen/window
 sg.theme("DarkTanBlue")
 # define layout
+
+PORT_list = list_ports.comports()
+length = len(PORT_list)
+
+PORTname_list = [PORT_list[i][1] for i in range(length)]
+
+serialportselect=[sg.Text('Serial'), sg.Spin(values=(PORTname_list), size=(30,1), key='COMs')]
+
 options = [
             [sg.Frame('Channels',
                 [
