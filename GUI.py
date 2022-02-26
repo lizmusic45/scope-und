@@ -16,7 +16,7 @@ length = len(PORT_list)
 
 PORTname_list = [PORT_list[i][1] for i in range(length)]
 
-serialportselect=[sg.Text('Serial'), sg.Spin(values=(PORTname_list), size=(30,1), key='COMs')]
+serialportselect=[sg.Text('Serial'), sg.Spin(values=(PORTname_list), size=(30,1), key='Serial')]
 
 options = [
             [sg.Frame('Channels',
