@@ -94,7 +94,9 @@ fns = [
             ],
         pad=((200,0),(0,0)),
         title_color='yellow',
-        border_width=10)
+        border_width=10),
+            
+        sg.Text('Settings'), sg.Text("", size=(50, 7), key='settings')
       ]
 
 choices = [[sg.Frame('Oscilloscope 4Channels', layout=options)]]
@@ -128,20 +130,15 @@ window = sg.Window('Demo Application - 4 Channel Oscilloscope', layout, location
 fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
 
 
-# Define Window
-#window = sg.Window("Column and Frame", layout)
-
-# Read  values entered by user
-event, values = window.read()
-
 while True:
     event, values = window.read()  # Read  values entered by user
+    settings_list=values
     if event == sg.WIN_CLOSED:  # If window is closed by user terminate While Loop
         break
     if event == 'Submit':  # If submit button is clicked display chosen values
-        window['options'].update(strx)  # output the final string
+        window['settings'].update(settings_list)  # output the final string
     if event == 'Close':
-        window['options'].update(strx)
-       # break
+        window['settings'].update(settings_list)
+        break
 # Close Window
 window.close()
