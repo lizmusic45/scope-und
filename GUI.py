@@ -147,6 +147,9 @@ while True:
         break
     if event == 'Submit':  # If submit button is clicked display chosen values
         window['settings'].update(settings_list)  # output the final string
+
+        #---write the code to send settings_list to the serial port here---------#
+
     if event == 'Close':
         window['settings'].update(settings_list)
         break
