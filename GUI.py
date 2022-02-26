@@ -54,8 +54,10 @@ options = [
                     [sg.Text('Rise'), sg.Radio('', 'rd_risefall', key='Rise'),
                      sg.Text('Fall'), sg.Radio('', 'rd_risefall', key='Fall')],
 
-                    [sg.Text('Low Level'), sg.Input(size=(4,18), default_text = '0', key='LowL'),
-                     sg.Text('High Level'), sg.Input(size=(4, 18), default_text = '0.1', key='HighL')]
+                    [sg.Text('Low'), sg.Input(size=(3,18), default_text='0', key='LowL'),
+                     sg.Spin(values=('V', 'mV'), initial_value='V', size=(3,18), key='LowLScale'),
+                     sg.Text('High'), sg.Input(size=(3, 18), default_text='10', key='HighL'),
+                     sg.Spin(values=('V','mV'), initial_value='V', size=(3,18), key='HighLScale')]
                 ],
             title_color='yellow',
             border_width = 10)]
