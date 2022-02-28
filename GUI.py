@@ -4,7 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
+import serial
+from serial.tools import list_ports
 
 
 # set the theme for the screen/window
@@ -15,8 +16,11 @@ PORT_list = list_ports.comports()
 length = len(PORT_list)
 
 PORTname_list = [PORT_list[i][1] for i in range(length)]
+PORTname_list.sort()
+PORTname_list.insert(0,'')
 
-serialportselect=[sg.Text('Serial'), sg.Spin(values=(PORTname_list), size=(30,1), key='Serial')]
+serialportselect=[sg.Text('Serial'), sg.Combo(values=PORTname_list, size=(30,1), readonly=True,
+                                              default_value='', enable_events=True, key='Serial')]
 
 options = [
             [sg.Frame('Channels',
@@ -68,8 +72,8 @@ options = [
                      sg.Spin(values=('V','mV'), initial_value='V', size=(3,18), key='HighLScale')]
                 ],
             title_color='yellow',
-            border_width = 10)]
-            
+            border_width = 10)],
+
             [sg.Frame('Horizontal',
                 [
                     [sg.Slider(range=(2, 10), orientation='h', size=(15, 25), default_value=2, resolution=2,
@@ -79,7 +83,7 @@ options = [
                 ],
             title_color='yellow',
             border_width = 10)]
-         ]
+          ]
 
 #---------------Data that Alex will supply with his code.  this is just a data set for an example ------------------
 ch1fns = ['Ch1', '4.0 V', '1 Hz', '2.83 V', '-2.0 V', '2.0 V']
@@ -105,11 +109,11 @@ fns = [
         pad=((200,0),(0,0)),
         title_color='yellow',
         border_width=10),
-            
+
         sg.Text('Settings'), sg.Text("", size=(50, 7), key='settings')
       ]
 
-choices = [[sg.Frame('Oscilloscope 4Channels', layout=options)]]
+choices = [serialportselect, [sg.Frame('Oscilloscope 4Channels', layout=options)]]
 
 
 #---------------------random Sin wave Plot for demo-Alex's code will go here-----------------
@@ -130,11 +134,11 @@ def draw_figure(canvas, figure):
 
 # ------------------------------- Beginning of GUI CODE -------------------------------
 
-# Create layout with two columns using precreated frames
+# Create layout with two columns using pre-created frames
 layout = [[sg.Column(choices), (sg.Canvas(key='-CANVAS-'))]],fns
 
 # create the form and show it without the plot
-window = sg.Window('Demo Application - 4 Channel Oscilloscope', layout, location=(100, 100), finalize=True)
+window = sg.Window('Demo Application - 4 Channel Oscilloscope', layout, location=(100, 25), finalize=True)
 
 # add the plot to the window
 fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
@@ -143,12 +147,26 @@ fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
 while True:
     event, values = window.read()  # Read  values entered by user
     settings_list=values
+
     if event == sg.WIN_CLOSED:  # If window is closed by user terminate While Loop
         break
+    if event == 'Serial':
+
+        for j in range(len(PORT_list)):
+            if PORT_list[j][1] == settings_list['Serial']:
+                PORT_index = j
+
+        PORT_name=PORT_list[PORT_index][0]
+
+        arduino = serial.Serial(PORT_name, baudrate=9600, timeout=0.1)
+        #------------do some stuff here to change COM setting-------------#
+
+
     if event == 'Submit':  # If submit button is clicked display chosen values
         window['settings'].update(settings_list)  # output the final string
 
-        #---write the code to send settings_list to the serial port here---------#
+        #---code to send settings_list to the serial port---------#
+
 
     if event == 'Close':
         window['settings'].update(settings_list)
