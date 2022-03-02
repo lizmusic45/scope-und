@@ -60,14 +60,14 @@ void setup() {
   digitalWrite(CS, LOW);  //check how long digitalWrite takes - long enough for td(CS-DO) = 40 ns?
     //use power-up/power-down feature...?  maybe useful after data set on computer...?  
     //AL/PD pin is floating - is this okay? YES if programmed as a power-down input
-    //register: 06h, default: 00001000  (Aux-Config: 0000 |AL_PD=1 for power-down| |IntVref=1 to use internal ref| |TempSensor=0 not using temp sensor| 0)
-  writeSPI(00000110, 00001100);  //register is 7-bit address, MSB is R/W: Write = 0
+    //register address: 06h, default: 00001000  (Aux-Config: 0000 |AL_PD=1 for power-down| |IntVref=1 to use internal ref| |TempSensor=0 not using temp sensor| 0)
+  writeSPI(B00001100, B00001100);  //register is 7-bit address, MSB is R/W: Write = 0
   digitalWrite(CS, HIGH);
 
   digitalWrite(CS, LOW);
     //auto scan  - what should default be...?  always scanning all four is easiest...?
     //register: 0Ch, default: 00000000 - results in channel 0 being selected  (Auto-Md Ch-Sel: Ch0 X Ch1 X Ch2 X Ch3 X)
-  writeSPI(00001100, channelSelection[channelNumber]);
+  writeSPI(B00011000, channelSelection[channelNumber]);
   digitalWrite(CS, HIGH);
 
   SPI.endTransaction();
