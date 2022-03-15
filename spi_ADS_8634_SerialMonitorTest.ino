@@ -13,7 +13,7 @@
 const int CS = 10;                                                      //digital pin for chip select
 const int buff = 5;                                                     //number of samples for the buffer 
 double trig = 2.0;                                                      //trigger to start readings in volts
-const int Vref = 2.5;                                                   //internal reference 2.5V
+const int Vref = 10;                                                    //internal reference 2.5V set to the +-10V range
 const int clk = 20000000;                                               //max clock speed for ADS 8634 chip 20Mhz
 int horiz = 5000;                                                       //horizontal division user input in us - min 500us to get 200ksps 
 int horizDiv = 5;                                                       //the number of horizontal divisions in serial plotter (half of the full set...?)
