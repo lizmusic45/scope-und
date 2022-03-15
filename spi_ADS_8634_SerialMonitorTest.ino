@@ -155,7 +155,7 @@ void readSPI(int arrayNum) {
   //process the digital bytes back into the analog voltage
   x = (sampleIn[arrayNum].b1 & B00001111) * 256;  //integer value of shifted up MSBs from 2^3 to 2^11
   y = sampleIn[arrayNum].b2 & B11111111;  //integer value of LSBs
-  sampleOut[arrayNum].V = (Vref/4095.0)*(x + y);  //convert digital back to analog
+  sampleOut[arrayNum].V = (((2.0*Vref)/4095.0)*(x + y))-Vref;  //convert digital back to analog
 
   digitalWrite(CS, HIGH); //turn off the chip select (CS)
 }
