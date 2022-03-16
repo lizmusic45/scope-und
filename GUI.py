@@ -1,3 +1,4 @@
+
 import PySimpleGUI as sg
 import matplotlib
 import pandas as pd
@@ -25,6 +26,25 @@ TrigList = ('mV', 'V')
 TrigListMultiplier = (3, 0) #10^-3, 10^0
 HorizList = ('10us', '100us', '1ms', '10ms', '100ms')
 HorizListMultiplier = (1, 2, 3, 4, 5) #in us, so 10us = 10^1, 100us = 10^2....etc
+chDict = {
+    '0b00000000': b'A',
+    '0b00000010': b'B',
+    '0b00001000': b'C',
+    '0b00001010': b'D',
+    '0b00100000': b'E',
+    '0b00100010': b'F',
+    '0b00101000': b'G',
+    '0b00101010': b'H',
+    '0b10000000': b'I',
+    '0b10000010': b'J',
+    '0b10001000': b'K',
+    '0b10001010': b'L',
+    '0b10100000': b'M',
+    '0b10100010': b'N',
+    '0b10101000': b'O',
+    '0b10101010': b'P'
+}
+
 
 serialportselect=[sg.Text('Serial'), sg.Combo(values=PORTname_list, size=(30,1), readonly=True,
                                               default_value='', enable_events=True, key='Serial')]
@@ -70,8 +90,9 @@ options = [
                      sg.Radio('Ch3', 'rd_triggers', key='Trig3'),
                      sg.Radio('Ch4', 'rd_triggers', key='Trig4')],
 
-                    [sg.Text('Edge:'), sg.Radio('Rise', 'rd_edge', default=True, key='Rise'),
-                     sg.Radio('Fall', 'rd_edge', key='Fall')],
+                    [sg.Text('Type:'), sg.Radio('Free', 'rd_type', key='Free'),
+                     sg.Radio('Rise', 'rd_type', default=True, key='Rise'),
+                     sg.Radio('Fall', 'rd_type', key='Fall')],
 
                     [sg.Text('Level:'), sg.Input(size=(4,18), default_text='10',
                                                  enable_events=True, key='TrigLevel'),
@@ -116,7 +137,6 @@ fns = [
         title_color='yellow',
         border_width=10),
 
-        sg.Text('Settings'), sg.Text("", size=(50, 7), key='settings')
       ]
 
 choices = [serialportselect, [sg.Frame('Oscilloscope 4Channels', layout=options)]]
@@ -144,7 +164,7 @@ def draw_figure(canvas, figure):
 layout = [[sg.Column(choices), (sg.Canvas(key='-CANVAS-'))]],fns
 
 # create the form and show it without the plot
-window = sg.Window('Demo Application - 4 Channel Oscilloscope', layout, location=(100, 25), finalize=True)
+window = sg.Window('Demo Application - 4 Channel Oscilloscope', layout, finalize=True) #location=(100, 25)
 
 # add the plot to the window
 fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
@@ -164,74 +184,89 @@ while True:
 
         PORT_name=PORT_list[PORT_index][0]
 
-        arduino = serial.Serial(PORT_name, baudrate=9600, timeout=0.1)
+        try:
+            arduino = serial.Serial(PORT_name, baudrate=9600, timeout=0.1)
+
+        except serial.SerialException:
+            PORTname_list.remove(settings_list['Serial'])
+            window['Serial'].update(value='', values=PORTname_list)
+            sg.Popup('That port is busy.  You must select a different port', background_color='pink',
+                     relative_location=(-125,0), keep_on_top=True, text_color='black')
 
     if event == 'TrigLevel' and values['TrigLevel'] and (values['TrigLevel'][-1] not in ('0123456789.')
                                                          or len(values['TrigLevel']) > 4):
         window['TrigLevel'].update(values['TrigLevel'][:-1])
 
 
-    if event == 'Submit':  # If submit button is clicked display chosen values
+    if event == 'Submit':
 
-        window['settings'].update(settings_list)  # output the final string
+        if settings_list['Serial']=='':
+            sg.Popup('You must select a port in the Serial list', background_color='pink',
+                     relative_location=(-125,0), keep_on_top=True, text_color='black')
 
-        #---formatting the data to send over the serial---------#
-        V = [int(settings_list['Vert1']*settings_list['Ch1']), int(settings_list['Vert2']*settings_list['Ch2']),
-             int(settings_list['Vert3']*settings_list['Ch3']), int(settings_list['Vert4']*settings_list['Ch4'])]
-
-        VMult = [VertListMultiplier[VertList.index(settings_list['Vert1Scale'])],
-                 VertListMultiplier[VertList.index(settings_list['Vert2Scale'])],
-                 VertListMultiplier[VertList.index(settings_list['Vert3Scale'])],
-                 VertListMultiplier[VertList.index(settings_list['Vert4Scale'])]]
-
-        H = int(settings_list['Horiz'])
-
-        HMult = HorizListMultiplier[HorizList.index(settings_list['HorizScale'])]
-
-        TrigCh = [settings_list['Trig1'], settings_list['Trig2'], settings_list['Trig3'],
-                  settings_list['Trig4']].index(1)
-
-        TrigEdge = [settings_list['Fall'], settings_list['Rise']].index(1)
-
-        TrigLevelMult = TrigListMultiplier[TrigList.index(settings_list['TrigLevelScale'])]
-
-        if (len(settings_list['TrigLevel']) < 4):
-            if ('.' not in settings_list['TrigLevel']):
-                TrigLevel = settings_list['TrigLevel'] + '.'
-            else:
-                TrigLevel = settings_list['TrigLevel']
-            while len(TrigLevel) < 4:
-                TrigLevel = TrigLevel + '0'
         else:
-            TrigLevel = settings_list['TrigLevel']
 
-        TrigLevelSet = [TrigLevel[k] for k in range(len(TrigLevel))]
+            #---formatting the data to send over the serial---------#
+            ChanStr = '0b'+str(1*settings_list['Ch1'])+'0'+str(1*settings_list['Ch2'])+'0'+str(1*settings_list['Ch3'])+'0'+str(1*settings_list['Ch4'])+'0'
 
-        Settings = V + VMult + [H] + [HMult] + [TrigCh] + [TrigEdge] + [TrigLevelMult] + TrigLevelSet
+            ChanByte = chDict[ChanStr]
 
-        SendSettings = np.array(Settings)
-        SendSettingsbyte = SendSettings.astype(bytes)
+            V = [int(settings_list['Vert1']*settings_list['Ch1']), int(settings_list['Vert2']*settings_list['Ch2']),
+                 int(settings_list['Vert3']*settings_list['Ch3']), int(settings_list['Vert4']*settings_list['Ch4'])]
 
-        print(SendSettingsbyte)
+            VMult = [VertListMultiplier[VertList.index(settings_list['Vert1Scale'])],
+                     VertListMultiplier[VertList.index(settings_list['Vert2Scale'])],
+                     VertListMultiplier[VertList.index(settings_list['Vert3Scale'])],
+                     VertListMultiplier[VertList.index(settings_list['Vert4Scale'])]]
 
-        arduino.write(b's')
+            H = int(settings_list['Horiz'])
 
-        arduino.read_until(b's')
+            HMult = HorizListMultiplier[HorizList.index(settings_list['HorizScale'])]
 
-        for k in range(len(SendSettingsbyte)):
-            arduino.write(SendSettingsbyte[k])
+            TrigCh = [settings_list['Trig1'], settings_list['Trig2'], settings_list['Trig3'],
+                      settings_list['Trig4']].index(1)
 
-        arduino.write(b'e')
+            TrigType = [settings_list['Free'], settings_list['Rise'], settings_list['Fall']].index(1)
 
+            TrigLevelMult = TrigListMultiplier[TrigList.index(settings_list['TrigLevelScale'])]
 
+            if settings_list['Free']==1:
+                TrigLevel = '0.00'
+            else:
+                if (len(settings_list['TrigLevel']) < 4):
+                    if ('.' not in settings_list['TrigLevel']):
+                        TrigLevel = settings_list['TrigLevel'] + '.'
+                    else:
+                        TrigLevel = settings_list['TrigLevel']
+                    while len(TrigLevel) < 4:
+                        TrigLevel = TrigLevel + '0'
+                else:
+                    TrigLevel = settings_list['TrigLevel']
 
+            TrigLevelSet = [TrigLevel[k] for k in range(len(TrigLevel))]
 
+            Settings = V + VMult + [H] + [HMult] + [TrigCh] + [TrigType] + [TrigLevelMult] + TrigLevelSet
 
+            SendSettings = np.array(Settings)
+            SendSettingsbyte = SendSettings.astype(bytes)
 
+            #print(ChanStr)
+            #print(ChanByte)
+            #print(SendSettingsbyte)
+
+            arduino.write(b's')
+
+            arduino.read_until(b's')
+
+            arduino.write(ChanByte)
+
+            for k in range(len(SendSettingsbyte)):
+                arduino.write(SendSettingsbyte[k])
+
+            arduino.write(b'e')
 
 
     if event == 'Close':
-        window['settings'].update(settings_list)
         break
 # Close Window
 window.close()
