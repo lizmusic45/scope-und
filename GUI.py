@@ -131,7 +131,7 @@ fns = [
             [
                 [sg.Table(values=([ch1fns, ch2fns, ch3fns, ch4fns]), headings=headings,
                           auto_size_columns=False, col_widths=[8,8,8,8,8,8], num_rows=4,
-                          row_colors=[(0,'blue'), (1,'red'), (2,'green'), (3,'orange')],
+                          row_colors=[(0,'blue'), (1,'orange'), (2,'green'), (3,'red')],
                           hide_vertical_scroll=True, justification='center')
                 ]
             ],
@@ -214,7 +214,7 @@ while True:
             print(df)
 
             fig = matplotlib.figure.Figure(figsize=(5, 4), dpi=100)
-            fig.add_subplot(111).plot(df["t"], df["Ch1"], df["Ch2"])    #-------this only seems to plot two y values - try to find out why-------#
+            fig.add_subplot(111).plot(df["t"], df["Ch1"], df["t"], df["Ch2"], df["t"], df["Ch3"], df["t"], df["Ch4"])   
             fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
             
             #-------Alex your pandas functions can go here--------#
