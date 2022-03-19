@@ -7,6 +7,7 @@ import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import serial
 from serial.tools import list_ports
+from io import StringIO
 
 
 # set the theme for the screen/window
@@ -124,6 +125,7 @@ headings = ['CH', 'Pk-to-Pk', 'Freq', 'RMS', 'Min', 'Max']
 fns = [
         sg.Button('Submit', font=('Times New Roman', 12)),
         sg.Button('Close', font=('Times New Roman', 12)),
+        sg.Button('Acquire', font=('Times New Roman', 12)),
 
         sg.Frame('Functions',
             [
@@ -144,9 +146,9 @@ choices = [serialportselect, [sg.Frame('Oscilloscope 4Channels', layout=options)
 
 #---------------------random Sin wave Plot for demo-Alex's code will go here-----------------
 
-fig = matplotlib.figure.Figure(figsize=(5, 4), dpi=100)
-t = np.arange(0, 3, .01)
-fig.add_subplot(111).plot(t, 2 * np.sin(2 * np.pi * t))
+#fig = matplotlib.figure.Figure(figsize=(5, 4), dpi=100)
+#t = np.arange(0, 3, .01)
+#fig.add_subplot(111).plot(t, 2 * np.sin(2 * np.pi * t))
 
 
 
@@ -167,7 +169,7 @@ layout = [[sg.Column(choices), (sg.Canvas(key='-CANVAS-'))]],fns
 window = sg.Window('Demo Application - 4 Channel Oscilloscope', layout, finalize=True) #location=(100, 25)
 
 # add the plot to the window
-fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
+#fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
 
 
 while True:
@@ -196,6 +198,32 @@ while True:
     if event == 'TrigLevel' and values['TrigLevel'] and (values['TrigLevel'][-1] not in ('0123456789.')
                                                          or len(values['TrigLevel']) > 4):
         window['TrigLevel'].update(values['TrigLevel'][:-1])
+
+    if event == 'Acquire':
+
+        if settings_list['Serial']=='':
+            sg.Popup('You must select a port in the Serial list', background_color='pink',
+                     relative_location=(-125,0), keep_on_top=True, text_color='black')
+
+        else:
+            arduino.write(b'a')
+
+            arduino.read_until(b'a')
+
+            data = arduino.read_until(b'e')[:-1]
+            print(data)
+
+            strData = data.decode()
+
+            strDataFile = StringIO('Ch1,'+'Ch2,' + 't\n' + strData)
+
+            df = pd.read_csv(strDataFile, sep=',', lineterminator='\n')
+
+            print(df)
+
+            fig = matplotlib.figure.Figure(figsize=(5, 4), dpi=100)
+            fig.add_subplot(111).plot(df["t"], df["Ch1"])
+            fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
 
 
     if event == 'Submit':
@@ -270,3 +298,4 @@ while True:
         break
 # Close Window
 window.close()
+
