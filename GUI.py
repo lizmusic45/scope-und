@@ -1,4 +1,3 @@
-
 import PySimpleGUI as sg
 import matplotlib
 import pandas as pd
@@ -124,8 +123,8 @@ headings = ['CH', 'Pk-to-Pk', 'Freq', 'RMS', 'Min', 'Max']
 
 fns = [
         sg.Button('Submit', font=('Times New Roman', 12)),
+        sg.Checkbox('Acquire', default=False, key='Acquire'),
         sg.Button('Close', font=('Times New Roman', 12)),
-        sg.Button('Acquire', font=('Times New Roman', 12)),
 
         sg.Frame('Functions',
             [
@@ -144,6 +143,7 @@ fns = [
 choices = [serialportselect, [sg.Frame('Oscilloscope 4Channels', layout=options)]]
 
 
+
 # ------------------------------- Beginning of Matplotlib helper code -----------------------
 
 def draw_figure(canvas, figure):
@@ -152,17 +152,30 @@ def draw_figure(canvas, figure):
     figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
     return figure_canvas_agg
 
+def delete_figure_agg(figure_agg):
+    figure_agg.get_tk_widget().forget()
+
 # ------------------------------- Beginning of GUI CODE -------------------------------
 
 # Create layout with two columns using pre-created frames
-layout = [[sg.Column(choices), (sg.Canvas(key='-CANVAS-'))]],fns
+layout = [[sg.Column(choices), (sg.Canvas(key='-CANVAS-'))]], fns
 
 # create the form and show it without the plot
 window = sg.Window('Demo Application - 4 Channel Oscilloscope', layout, finalize=True) #location=(100, 25)
 
-# add the plot to the window
-#fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
+# Generating time data using arange function from numpy
+time = np.arange(-3*np.pi, 3*np.pi, 0.01)
 
+# Finding amplitude at each time
+amplitude = np.sin(time)
+
+# Plotting time vs amplitude using plot function from pyplot
+plt.figure(figsize=(6, 5), dpi=100)
+plt.plot(time, amplitude)
+
+fig = plt.gcf()
+
+figure_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
 
 while True:
     event, values = window.read()  # Read  values entered by user
@@ -170,6 +183,10 @@ while True:
 
     if event == sg.WIN_CLOSED:  # If window is closed by user terminate While Loop
         break
+
+    if figure_agg:
+        delete_figure_agg(figure_agg)
+
     if event == 'Serial':
 
         for j in range(len(PORT_list)):
@@ -191,36 +208,6 @@ while True:
                                                          or len(values['TrigLevel']) > 4):
         window['TrigLevel'].update(values['TrigLevel'][:-1])
 
-    if event == 'Acquire':
-
-        if settings_list['Serial']=='':
-            sg.Popup('You must select a port in the Serial list', background_color='pink',
-                     relative_location=(-125,0), keep_on_top=True, text_color='black')
-
-        else:
-            arduino.write(b'a')
-
-            arduino.read_until(b'a')
-
-            data = arduino.read_until(b'e')[:-1]
-            print(data)
-
-            strData = data.decode()
-
-            strDataFile = StringIO('Ch1,'+'Ch2,' + 'Ch3,' + 'Ch4,' + 't\n' + strData)
-
-            df = pd.read_csv(strDataFile, sep=',', lineterminator='\n')
-
-            print(df)
-
-            fig = matplotlib.figure.Figure(figsize=(5, 4), dpi=100)
-            fig.add_subplot(111).plot(df["t"], df["Ch1"], df["t"], df["Ch2"], df["t"], df["Ch3"], df["t"], df["Ch4"])   
-            fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
-            
-            #-------Alex your pandas functions can go here--------#
-            #-------you will have to figure out how to update the table I made earlier in the code-----#
-            #-------the table code is lines 116-137---------------#
-
 
     if event == 'Submit':
 
@@ -230,7 +217,8 @@ while True:
 
         else:
 
-            #---formatting the data to send over the serial---------#
+            #---formatting the data to send to the Teensy---------#
+
             ChanStr = '0b'+str(1*settings_list['Ch1'])+'0'+str(1*settings_list['Ch2'])+'0'+str(1*settings_list['Ch3'])+'0'+str(1*settings_list['Ch4'])+'0'
 
             ChanByte = chDict[ChanStr]
@@ -274,9 +262,7 @@ while True:
             SendSettings = np.array(Settings)
             SendSettingsbyte = SendSettings.astype(bytes)
 
-            #print(ChanStr)
-            #print(ChanByte)
-            #print(SendSettingsbyte)
+            #----------writing the settings to the Teensy-------------------#
 
             arduino.write(b's')
 
@@ -288,6 +274,38 @@ while True:
                 arduino.write(SendSettingsbyte[k])
 
             arduino.write(b'e')
+
+            #------if Acquire is selected, get the data from the Teensy-------------#
+
+            if settings_list['Acquire']==True:
+
+                #----clear plot?-----#
+
+                arduino.write(b'a')
+
+                arduino.read_until(b'a')
+
+                data = arduino.read_until(b'e')[:-1]
+                print(data)
+
+                strData = data.decode()
+
+                strDataFile = StringIO('Ch1,' + 'Ch2,' + 'Ch3,' + 'Ch4,' + 't\n' + strData)
+
+                df = pd.read_csv(strDataFile, sep=',', lineterminator='\n')
+
+                print(df)
+
+                #fig = matplotlib.figure.Figure(figsize=(5, 4), dpi=100)
+
+                #fig.add_subplot(111).plot(df["t"], df["Ch1"], df["t"], df["Ch2"], df["t"], df["Ch3"], df["t"], df["Ch4"])
+
+                plt.figure(figsize=(6, 5), dpi=100)
+                plt.plot(df["t"], df["Ch1"], df["t"], df["Ch2"], df["t"], df["Ch3"], df["t"], df["Ch4"])
+
+                fig = plt.gcf()
+
+                figure_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
 
 
     if event == 'Close':
