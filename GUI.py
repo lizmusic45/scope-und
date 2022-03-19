@@ -207,14 +207,14 @@ while True:
 
             strData = data.decode()
 
-            strDataFile = StringIO('Ch1,'+'Ch2,' + 't\n' + strData)
+            strDataFile = StringIO('Ch1,'+'Ch2,' + 'Ch3,' + 'Ch4,' + 't\n' + strData)
 
             df = pd.read_csv(strDataFile, sep=',', lineterminator='\n')
 
             print(df)
 
             fig = matplotlib.figure.Figure(figsize=(5, 4), dpi=100)
-            fig.add_subplot(111).plot(df["t"], df["Ch1"])
+            fig.add_subplot(111).plot(df["t"], df["Ch1"], df["Ch2"])    #-------this only seems to plot two y values - try to find out why-------#
             fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
             
             #-------Alex your pandas functions can go here--------#
