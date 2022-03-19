@@ -144,14 +144,6 @@ fns = [
 choices = [serialportselect, [sg.Frame('Oscilloscope 4Channels', layout=options)]]
 
 
-#---------------------random Sin wave Plot for demo-Alex's code will go here-----------------
-
-#fig = matplotlib.figure.Figure(figsize=(5, 4), dpi=100)
-#t = np.arange(0, 3, .01)
-#fig.add_subplot(111).plot(t, 2 * np.sin(2 * np.pi * t))
-
-
-
 # ------------------------------- Beginning of Matplotlib helper code -----------------------
 
 def draw_figure(canvas, figure):
@@ -224,6 +216,10 @@ while True:
             fig = matplotlib.figure.Figure(figsize=(5, 4), dpi=100)
             fig.add_subplot(111).plot(df["t"], df["Ch1"])
             fig_canvas_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
+            
+            #-------Alex your pandas functions can go here--------#
+            #-------you will have to figure out how to update the table I made earlier in the code-----#
+            #-------the table code is lines 116-137---------------#
 
 
     if event == 'Submit':
