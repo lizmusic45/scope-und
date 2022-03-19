@@ -95,9 +95,14 @@ void loop() {
       Serial.print(sin(y));
       Serial.print(",");
       Serial.println(sin(y)*2);
+      
       SerialUSB1.print(sin(y));
       SerialUSB1.print(',');
       SerialUSB1.print(sin(y)*2);
+      SerialUSB1.print(',');
+      SerialUSB1.print(sin(y)*3);
+      SerialUSB1.print(',');
+      SerialUSB1.print(sin(y)/2);
       SerialUSB1.print(',');
       SerialUSB1.print(x);
       SerialUSB1.print('\n');
