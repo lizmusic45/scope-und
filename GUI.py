@@ -90,11 +90,16 @@ options = [
                      sg.Radio('Ch3', 'rd_triggers', key='Trig3'),
                      sg.Radio('Ch4', 'rd_triggers', key='Trig4')],
 
-                    [sg.Text('Type:'), sg.Radio('Free', 'rd_type', key='Free'),
+                    [sg.Text('Type:'),
+                     sg.Radio('Free', 'rd_type', key='Free'),
                      sg.Radio('Rise', 'rd_type', default=True, key='Rise'),
                      sg.Radio('Fall', 'rd_type', key='Fall')],
 
-                    [sg.Text('Level:'), sg.Input(size=(4,18), default_text='10',
+                    [sg.Text('        '),
+                     sg.Radio('Higher', 'rd-type', key='Higher'),
+                     sg.Radio('Lower', 'rd-type', key='Lower')],
+
+                    [sg.Text('Level:'), sg.Input(size=(5,18), default_text='10',
                                                  enable_events=True, key='TrigLevel'),
                      sg.Spin(values=TrigList, initial_value='mV', size=(3,18), key='TrigLevelScale')]
                 ],
@@ -204,9 +209,20 @@ while True:
             sg.Popup('That port is busy.  You must select a different port', background_color='pink',
                      relative_location=(-125,0), keep_on_top=True, text_color='black')
 
-    if event == 'TrigLevel' and values['TrigLevel'] and (values['TrigLevel'][-1] not in ('0123456789.')
-                                                         or len(values['TrigLevel']) > 4):
-        window['TrigLevel'].update(values['TrigLevel'][:-1])
+
+    if event == 'TrigLevel' and values['TrigLevel']:
+
+        if len(values['TrigLevel']) == 1:
+            if values['TrigLevel'] not in ('0123456789.-'):
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
+
+        else:
+            if values['TrigLevel'][0] == '-':
+                if values['TrigLevel'][-1] not in ('0123456789.') or len(values['TrigLevel']) > 5:
+                    window['TrigLevel'].update(values['TrigLevel'][:-1])
+
+            elif values['TrigLevel'][-1] not in ('0123456789.') or len(values['TrigLevel']) > 4:
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
 
 
     if event == 'Submit':
@@ -238,19 +254,24 @@ while True:
             TrigCh = [settings_list['Trig1'], settings_list['Trig2'], settings_list['Trig3'],
                       settings_list['Trig4']].index(1)
 
-            TrigType = [settings_list['Free'], settings_list['Rise'], settings_list['Fall']].index(1)
+            TrigType = [settings_list['Free'], settings_list['Rise'], settings_list['Fall'],
+                        settings_list['Higher'], settings_list['Lower']].index(1)
 
             TrigLevelMult = TrigListMultiplier[TrigList.index(settings_list['TrigLevelScale'])]
 
             if settings_list['Free']==1:
-                TrigLevel = '0.00'
+                TrigLevel = '0.000'
             else:
-                if (len(settings_list['TrigLevel']) < 4):
-                    if ('.' not in settings_list['TrigLevel']):
-                        TrigLevel = settings_list['TrigLevel'] + '.'
+                if (len(settings_list['TrigLevel']) < 5):
+                    if (settings_list['TrigLevel'][0] != '-'):
+                        TrigLevel = '+' + settings_list['TrigLevel']
                     else:
                         TrigLevel = settings_list['TrigLevel']
-                    while len(TrigLevel) < 4:
+                    if ('.' not in settings_list['TrigLevel']):
+                        TrigLevel = TrigLevel + '.'
+                    else:
+                        TrigLevel = TrigLevel
+                    while len(TrigLevel) < 5:
                         TrigLevel = TrigLevel + '0'
                 else:
                     TrigLevel = settings_list['TrigLevel']
