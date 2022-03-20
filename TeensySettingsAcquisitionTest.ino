@@ -1,8 +1,8 @@
 char start_byte = '0';
-char settings_bytes[19] = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'};  //settings are sent in this order  [Vert1, Vert2, Vert3, Vert4, 
+char settings_bytes[20] = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0', '0'};  //settings are sent in this order  [Vert1, Vert2, Vert3, Vert4, 
                                                  //Vert1Scale, Vert2Scale, Vert3Scale, Vert4Scale, Horiz, HorizScale, 
                                                  //TrigCh, TrigType, TrigScale, 
-                                                 //TrigLevel[0], TrigLevel[1], TrigLevel[2], TrigLevel[3]]
+                                                 //TrigLevel[0], TrigLevel[1], TrigLevel[2], TrigLevel[3], TrigLevel[4]
 String settings_strings;
 
 bool printSettings = 0;
@@ -33,7 +33,7 @@ void loop() {
     if (start_byte == 's'){
       SerialUSB1.write('s');
   
-      SerialUSB1.readBytesUntil('e', settings_bytes, 19);
+      SerialUSB1.readBytesUntil('e', settings_bytes, 20);
       start_byte = '0';
       printSettings = 1;
       
@@ -85,6 +85,7 @@ void loop() {
     Serial.print(settings_bytes[15]);
     Serial.print(settings_bytes[16]);
     Serial.print(settings_bytes[17]);
+    Serial.print(settings_bytes[18]);
     Serial.print(" x 10^-");
     Serial.print(settings_bytes[13]);
     Serial.println(" V");
