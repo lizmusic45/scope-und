@@ -1,8 +1,8 @@
 char start_byte = '0';
-char settings_bytes[20] = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0', '0'};  //settings are sent in this order  [Vert1, Vert2, Vert3, Vert4, 
+char settings_bytes[20] = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'};  //settings are sent in this order  [Vert1, Vert2, Vert3, Vert4, 
                                                  //Vert1Scale, Vert2Scale, Vert3Scale, Vert4Scale, Horiz, HorizScale, 
                                                  //TrigCh, TrigType, TrigScale, 
-                                                 //TrigLevel[0], TrigLevel[1], TrigLevel[2], TrigLevel[3], TrigLevel[4]
+                                                 //TrigLevel[0], TrigLevel[1], TrigLevel[2], TrigLevel[3]]
 String settings_strings;
 
 bool printSettings = 0;
@@ -78,10 +78,11 @@ void loop() {
     Serial.println(" us");
     Serial.print("TrigCh: ");
     Serial.println(settings_bytes[11]);
-    Serial.print("TrigEdge (0=Free, 1=Rise, 2=Fall, 3=Higher, 4=Lower): ");
+    Serial.print("TrigEdge (0=Free, 1=Rise, 2=Fall): ");
     Serial.println(settings_bytes[12]);
-    Serial.print("TrigLevel: ");
+    Serial.print("TrigLevelSign (0=positive number, 1=negative number): ");
     Serial.print(settings_bytes[14]);
+    Serial.print("TrigLevel (tens, ones, tenths, hundredths): ");
     Serial.print(settings_bytes[15]);
     Serial.print(settings_bytes[16]);
     Serial.print(settings_bytes[17]);
