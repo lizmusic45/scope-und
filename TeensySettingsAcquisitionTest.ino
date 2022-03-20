@@ -78,7 +78,7 @@ void loop() {
     Serial.println(" us");
     Serial.print("TrigCh: ");
     Serial.println(settings_bytes[11]);
-    Serial.print("TrigEdge (0=Free, 1=Rise, 2=Fall): ");
+    Serial.print("TrigEdge (0=Free, 1=Rise, 2=Fall, 3=Higher, 4=Lower): ");
     Serial.println(settings_bytes[12]);
     Serial.print("TrigLevel: ");
     Serial.print(settings_bytes[14]);
