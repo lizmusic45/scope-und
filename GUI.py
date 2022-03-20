@@ -99,7 +99,7 @@ options = [
                      sg.Radio('Higher', 'rd-type', key='Higher'),
                      sg.Radio('Lower', 'rd-type', key='Lower')],
 
-                    [sg.Text('Level:'), sg.Input(size=(5,18), default_text='10',
+                    [sg.Text('Level:'), sg.Input(size=(6,18), default_text='10',
                                                  enable_events=True, key='TrigLevel'),
                      sg.Spin(values=TrigList, initial_value='mV', size=(3,18), key='TrigLevelScale')]
                 ],
@@ -216,13 +216,54 @@ while True:
             if values['TrigLevel'] not in ('0123456789.-'):
                 window['TrigLevel'].update(values['TrigLevel'][:-1])
 
+        elif len(values['TrigLevel']) == 2 and '-' not in values['TrigLevel']:
+            if values['TrigLevel'][0] not in ('012.'):
+                window['TrigLevel'].update('')
+                sg.Popup('The trigger value cannot be greater than +20', background_color='pink',
+                         relative_location=(-125,0), keep_on_top=True, text_color='black')
+            elif values['TrigLevel'][-1] not in ('0123456789.'):
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
+
+        elif len(values['TrigLevel']) == 3 and '-' in values['TrigLevel']:
+            if values['TrigLevel'][1] not in ('012.'):
+                window['TrigLevel'].update('')
+                sg.Popup('The trigger value cannot be less than -20', background_color='pink',
+                         relative_location=(-125,0), keep_on_top=True, text_color='black')
+            elif values['TrigLevel'][-1] not in ('0123456789.'):
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
+
         else:
             if values['TrigLevel'][0] == '-':
-                if values['TrigLevel'][-1] not in ('0123456789.') or len(values['TrigLevel']) > 5:
-                    window['TrigLevel'].update(values['TrigLevel'][:-1])
+                if '.' in values['TrigLevel']:
+                    if values['TrigLevel'].index('.') == 1:
+                        if values['TrigLevel'][-1] not in ('0123456789.') or len(values['TrigLevel']) > 4:
+                            window['TrigLevel'].update(values['TrigLevel'][:-1])
+                    elif values['TrigLevel'].index('.') == 2:
+                        if values['TrigLevel'].count('.') > 1 or values['TrigLevel'][-1] not in ('0123456789.') or len(
+                                values['TrigLevel']) > 5:
+                            window['TrigLevel'].update(values['TrigLevel'][:-1])
+                    elif values['TrigLevel'].index('.') == 3:
+                        if values['TrigLevel'].count('.') > 1 or values['TrigLevel'][-1] not in ('0123456789.') or len(
+                                values['TrigLevel']) > 6:
+                            window['TrigLevel'].update(values['TrigLevel'][:-1])
+                else:
+                    if values['TrigLevel'][-1] not in ('0123456789') or len(values['TrigLevel']) > 3:
+                        window['TrigLevel'].update(values['TrigLevel'][:-1])
 
-            elif values['TrigLevel'][-1] not in ('0123456789.') or len(values['TrigLevel']) > 4:
-                window['TrigLevel'].update(values['TrigLevel'][:-1])
+            else:
+                if '.' in values['TrigLevel']:
+                    if values['TrigLevel'].index('.') == 0:
+                        if values['TrigLevel'][-1] not in ('0123456789.') or len(values['TrigLevel']) > 3:
+                            window['TrigLevel'].update(values['TrigLevel'][:-1])
+                    elif values['TrigLevel'].index('.') == 1:
+                        if values['TrigLevel'].count('.') > 1 or values['TrigLevel'][-1] not in ('0123456789.') or len(values['TrigLevel']) > 4:
+                            window['TrigLevel'].update(values['TrigLevel'][:-1])
+                    elif values['TrigLevel'].index('.') == 2:
+                        if values['TrigLevel'].count('.') > 1 or values['TrigLevel'][-1] not in ('0123456789.') or len(values['TrigLevel']) > 5:
+                            window['TrigLevel'].update(values['TrigLevel'][:-1])
+                else:
+                    if values['TrigLevel'][-1] not in ('0123456789') or len(values['TrigLevel']) > 2:
+                        window['TrigLevel'].update(values['TrigLevel'][:-1])
 
 
     if event == 'Submit':
@@ -260,25 +301,29 @@ while True:
             TrigLevelMult = TrigListMultiplier[TrigList.index(settings_list['TrigLevelScale'])]
 
             if settings_list['Free']==1:
-                TrigLevel = '0.000'
+                TrigLevel = '0000'
             else:
-                if (len(settings_list['TrigLevel']) < 5):
-                    if (settings_list['TrigLevel'][0] != '-'):
-                        TrigLevel = '+' + settings_list['TrigLevel']
-                    else:
-                        TrigLevel = settings_list['TrigLevel']
-                    if ('.' not in settings_list['TrigLevel']):
-                        TrigLevel = TrigLevel + '.'
-                    else:
-                        TrigLevel = TrigLevel
-                    while len(TrigLevel) < 5:
-                        TrigLevel = TrigLevel + '0'
+                if settings_list['TrigLevel'][0] == '-':
+                    TrigLevelSign = '1'
+                    TrigLevel = settings_list['TrigLevel'][1:]
                 else:
+                    TrigLevelSign = '0'
                     TrigLevel = settings_list['TrigLevel']
+                if TrigLevel[0] == '.':
+                    TrigLevel = '0' + '0' + TrigLevel[1:]
+                elif TrigLevel[1] == '.':
+                    TrigLevel = '0' + TrigLevel[0] + TrigLevel[2:]
+                elif TrigLevel[2] == '.':
+                    TrigLevel = TrigLevel[0] + TrigLevel[1] + TrigLevel[3:]
+                else:
+                    TrigLevel = TrigLevel
 
-            TrigLevelSet = [TrigLevel[k] for k in range(len(TrigLevel))]
+                while len(TrigLevel) < 4:
+                    TrigLevel = TrigLevel + '0'
 
-            Settings = V + VMult + [H] + [HMult] + [TrigCh] + [TrigType] + [TrigLevelMult] + TrigLevelSet
+            #TrigLevelSet = [TrigLevel[k] for k in range(len(TrigLevel))]
+
+            Settings = V + VMult + [H] + [HMult] + [TrigCh] + [TrigType] + [TrigLevelMult] + [TrigLevelSign] + [TrigLevel]
 
             SendSettings = np.array(Settings)
             SendSettingsbyte = SendSettings.astype(bytes)
