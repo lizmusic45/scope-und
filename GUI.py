@@ -376,7 +376,8 @@ while True:
 
                 plt.figure(figsize=(6, 5), dpi=100)
                 plt.plot(df["t"], df["Ch1"], df["t"], df["Ch2"], df["t"], df["Ch3"], df["t"], df["Ch4"])
-
+                plt.grid()
+                plt.tick_params(grid_alpha=0.5)
                 fig = plt.gcf()
 
                 figure_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
