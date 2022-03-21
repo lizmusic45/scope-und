@@ -22,8 +22,6 @@ PORTname_list.insert(0,'')
 
 VertList = ('10mV', '100mV', '1V')
 VertListMultiplier = (2, 1, 0) #in volts, so 10mV = 10^-2, 100mV = 10^-1, 1V = 10^0
-TrigList = ('mV', 'V')
-TrigListMultiplier = (3, 0) #10^-3, 10^0
 HorizList = ('10us', '100us', '1ms', '10ms', '100ms')
 HorizListMultiplier = (1, 2, 3, 4, 5) #in us, so 10us = 10^1, 100us = 10^2....etc
 chDict = {
@@ -101,7 +99,7 @@ options = [
 
                     [sg.Text('Level:'), sg.Input(size=(6,18), default_text='10',
                                                  enable_events=True, key='TrigLevel'),
-                     sg.Spin(values=TrigList, initial_value='mV', size=(3,18), key='TrigLevelScale')]
+                     sg.Text('V')]
                 ],
             title_color='yellow',
             border_width = 10)],
@@ -217,18 +215,26 @@ while True:
                 window['TrigLevel'].update(values['TrigLevel'][:-1])
 
         elif len(values['TrigLevel']) == 2 and '-' not in values['TrigLevel']:
-            if values['TrigLevel'][0] not in ('012.'):
-                window['TrigLevel'].update('')
-                sg.Popup('The trigger value cannot be greater than +20', background_color='pink',
+            if values['TrigLevel'][0] == '2' and values['TrigLevel'][-1] not in ('0.'):
+                window['TrigLevel'].update('20')
+                sg.Popup('1 The trigger level cannot be greater than +20 V', background_color='pink',
+                         relative_location=(-125, 0), keep_on_top=True, text_color='black')
+            elif values['TrigLevel'][0] not in ('012.'):
+                window['TrigLevel'].update('20')
+                sg.Popup('2 The trigger value cannot be greater than +20 V', background_color='pink',
                          relative_location=(-125,0), keep_on_top=True, text_color='black')
             elif values['TrigLevel'][-1] not in ('0123456789.'):
                 window['TrigLevel'].update(values['TrigLevel'][:-1])
 
         elif len(values['TrigLevel']) == 3 and '-' in values['TrigLevel']:
-            if values['TrigLevel'][1] not in ('012.'):
-                window['TrigLevel'].update('')
-                sg.Popup('The trigger value cannot be less than -20', background_color='pink',
-                         relative_location=(-125,0), keep_on_top=True, text_color='black')
+            if values['TrigLevel'][1] == '2' and values['TrigLevel'][-1] not in ('0.'):
+                window['TrigLevel'].update('-20')
+                sg.Popup('1 The trigger level cannot be greater than -20 V', background_color='pink',
+                         relative_location=(-125, 0), keep_on_top=True, text_color='black')
+            elif values['TrigLevel'][1] not in ('012.'):
+                window['TrigLevel'].update('-20')
+                sg.Popup('2 The trigger value cannot be greater than -20 V', background_color='pink',
+                         relative_location=(-125, 0), keep_on_top=True, text_color='black')
             elif values['TrigLevel'][-1] not in ('0123456789.'):
                 window['TrigLevel'].update(values['TrigLevel'][:-1])
 
@@ -298,8 +304,6 @@ while True:
             TrigType = [settings_list['Free'], settings_list['Rise'], settings_list['Fall'],
                         settings_list['Higher'], settings_list['Lower']].index(1)
 
-            TrigLevelMult = TrigListMultiplier[TrigList.index(settings_list['TrigLevelScale'])]
-
             if settings_list['Free']==1:
                 TrigLevel = '0000'
             else:
@@ -309,6 +313,10 @@ while True:
                 else:
                     TrigLevelSign = '0'
                     TrigLevel = settings_list['TrigLevel']
+                if '.' not in TrigLevel:
+                    TrigLevel = TrigLevel + '.'
+                else:
+                    TrigLevel = TrigLevel
                 if TrigLevel[0] == '.':
                     TrigLevel = '0' + '0' + TrigLevel[1:]
                 elif TrigLevel[1] == '.':
@@ -323,7 +331,7 @@ while True:
 
             #TrigLevelSet = [TrigLevel[k] for k in range(len(TrigLevel))]
 
-            Settings = V + VMult + [H] + [HMult] + [TrigCh] + [TrigType] + [TrigLevelMult] + [TrigLevelSign] + [TrigLevel]
+            Settings = V + VMult + [H] + [HMult] + [TrigCh] + [TrigType] + [TrigLevelSign] + [TrigLevel]
 
             SendSettings = np.array(Settings)
             SendSettingsbyte = SendSettings.astype(bytes)
