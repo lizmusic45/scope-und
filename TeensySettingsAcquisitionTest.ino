@@ -1,7 +1,7 @@
 char start_byte = '0';
 char settings_bytes[19] = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'};  //settings are sent in this order  [Vert1, Vert2, Vert3, Vert4, 
                                                  //Vert1Scale, Vert2Scale, Vert3Scale, Vert4Scale, Horiz, HorizScale, 
-                                                 //TrigCh, TrigType, TrigScale, 
+                                                 //TrigCh, TrigType,
                                                  //TrigLevel[0], TrigLevel[1], TrigLevel[2], TrigLevel[3]]
 String settings_strings;
 
