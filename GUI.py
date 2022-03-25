@@ -115,7 +115,7 @@ options = [
             border_width = 10)]
           ]
 
-#---------------Data that Alex will supply with his code.  this is just a data set for an example ------------------
+
 ch1fns = ['Ch1', '4.0 V', '1 Hz', '2.83 V', '-2.0 V', '2.0 V']
 ch2fns = ['Ch2', '-', '-', '-', '-', '-']
 ch3fns = ['Ch3', '-', '-', '-', '-', '-']
@@ -367,6 +367,28 @@ while True:
                 strDataFile = StringIO('Ch1,' + 'Ch2,' + 'Ch3,' + 'Ch4,' + 't\n' + strData)
 
                 df = pd.read_csv(strDataFile, sep=',', lineterminator='\n')
+                
+                
+                # Finding Max and Min Values
+
+                Max = df.max()
+                Min = df.min()
+
+                # Finding RMS Value
+
+                rows = len(df)
+                rows_squared = df['Voltage'] ** 2
+                rows_total = sum(rows_squared)
+                r = rows_total / rows
+                RMS = math.sqrt(r)
+
+                # Finding Peak-to-peak Voltage
+
+                Pk-to-Pk = rms * 2 * math.sqrt(2)
+
+                # Finding Frequency
+
+
 
                 print(df)
 
