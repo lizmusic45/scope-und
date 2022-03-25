@@ -384,7 +384,7 @@ while True:
 
                 # Finding Peak-to-peak Voltage
 
-                Pk-to-Pk = rms * 2 * math.sqrt(2)
+                Pk-to-Pk = RMS * 2 * math.sqrt(2)
 
                 # Finding Frequency
 
