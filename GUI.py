@@ -210,66 +210,96 @@ while True:
 
     if event == 'TrigLevel' and values['TrigLevel']:
 
-        if len(values['TrigLevel']) == 1:
+                if len(values['TrigLevel']) == 1:
             if values['TrigLevel'] not in ('0123456789.-'):
                 window['TrigLevel'].update(values['TrigLevel'][:-1])
 
-        elif len(values['TrigLevel']) == 2 and '-' not in values['TrigLevel']:
-            if values['TrigLevel'][0] == '2' and values['TrigLevel'][-1] not in ('0.'):
-                window['TrigLevel'].update('20')
-                sg.Popup('1 The trigger level cannot be greater than +20 V', background_color='pink',
-                         relative_location=(-125, 0), keep_on_top=True, text_color='black')
-            elif values['TrigLevel'][0] not in ('012.'):
-                window['TrigLevel'].update('20')
-                sg.Popup('2 The trigger value cannot be greater than +20 V', background_color='pink',
-                         relative_location=(-125,0), keep_on_top=True, text_color='black')
-            elif values['TrigLevel'][-1] not in ('0123456789.'):
-                window['TrigLevel'].update(values['TrigLevel'][:-1])
-
-        elif len(values['TrigLevel']) == 3 and '-' in values['TrigLevel']:
-            if values['TrigLevel'][1] == '2' and values['TrigLevel'][-1] not in ('0.'):
-                window['TrigLevel'].update('-20')
-                sg.Popup('1 The trigger level cannot be greater than -20 V', background_color='pink',
-                         relative_location=(-125, 0), keep_on_top=True, text_color='black')
-            elif values['TrigLevel'][1] not in ('012.'):
-                window['TrigLevel'].update('-20')
-                sg.Popup('2 The trigger value cannot be greater than -20 V', background_color='pink',
-                         relative_location=(-125, 0), keep_on_top=True, text_color='black')
-            elif values['TrigLevel'][-1] not in ('0123456789.'):
-                window['TrigLevel'].update(values['TrigLevel'][:-1])
-
-        else:
+        if len(values['TrigLevel']) == 2:
             if values['TrigLevel'][0] == '-':
-                if '.' in values['TrigLevel']:
-                    if values['TrigLevel'].index('.') == 1:
-                        if values['TrigLevel'][-1] not in ('0123456789.') or len(values['TrigLevel']) > 4:
-                            window['TrigLevel'].update(values['TrigLevel'][:-1])
-                    elif values['TrigLevel'].index('.') == 2:
-                        if values['TrigLevel'].count('.') > 1 or values['TrigLevel'][-1] not in ('0123456789.') or len(
-                                values['TrigLevel']) > 5:
-                            window['TrigLevel'].update(values['TrigLevel'][:-1])
-                    elif values['TrigLevel'].index('.') == 3:
-                        if values['TrigLevel'].count('.') > 1 or values['TrigLevel'][-1] not in ('0123456789.') or len(
-                                values['TrigLevel']) > 6:
-                            window['TrigLevel'].update(values['TrigLevel'][:-1])
-                else:
-                    if values['TrigLevel'][-1] not in ('0123456789') or len(values['TrigLevel']) > 3:
-                        window['TrigLevel'].update(values['TrigLevel'][:-1])
+                if values['TrigLevel'][-1] not in ('0123456789.'):
+                    window['TrigLevel'].update(values['TrigLevel'][:-1])
+            elif values['TrigLevel'][0] == '0':
+                if values['TrigLevel'][-1] not in ('.'):
+                    window['TrigLevel'].update(values['TrigLevel'][:-1])
+            elif values['TrigLevel'][0] == '.':
+                if values['TrigLevel'][-1] not in ('0123456789'):
+                    window['TrigLevel'].update(values['TrigLevel'][:-1])
+            elif values['TrigLevel'][0] == '2':
+                if values['TrigLevel'][-1] not in ('0.'):
+                    window['TrigLevel'].update('20')
+                    sg.Popup('The trigger level cannot be greater than +20 V', background_color='pink',
+                             relative_location=(-125, 0), keep_on_top=True, text_color='black')
+            elif values['TrigLevel'][0] in ('3456789'):
+                if values['TrigLevel'][-1] not in ('.'):
+                    window['TrigLevel'].update('20')
+                    sg.Popup('The trigger level cannot be greater than +20 V', background_color='pink',
+                             relative_location=(-125, 0), keep_on_top=True, text_color='black')
 
-            else:
-                if '.' in values['TrigLevel']:
-                    if values['TrigLevel'].index('.') == 0:
-                        if values['TrigLevel'][-1] not in ('0123456789.') or len(values['TrigLevel']) > 3:
-                            window['TrigLevel'].update(values['TrigLevel'][:-1])
-                    elif values['TrigLevel'].index('.') == 1:
-                        if values['TrigLevel'].count('.') > 1 or values['TrigLevel'][-1] not in ('0123456789.') or len(values['TrigLevel']) > 4:
-                            window['TrigLevel'].update(values['TrigLevel'][:-1])
-                    elif values['TrigLevel'].index('.') == 2:
-                        if values['TrigLevel'].count('.') > 1 or values['TrigLevel'][-1] not in ('0123456789.') or len(values['TrigLevel']) > 5:
-                            window['TrigLevel'].update(values['TrigLevel'][:-1])
-                else:
-                    if values['TrigLevel'][-1] not in ('0123456789') or len(values['TrigLevel']) > 2:
-                        window['TrigLevel'].update(values['TrigLevel'][:-1])
+        if len(values['TrigLevel']) == 3:
+            if values['TrigLevel'][0] == '.' or values['TrigLevel'][1] == '.':
+                if values['TrigLevel'][-1] not in ('0123456789'):
+                    window['TrigLevel'].update(values['TrigLevel'][:-1])
+            elif values['TrigLevel'][0] == '-' and values['TrigLevel'][1] == '0':
+                if values['TrigLevel'][-1] not in ('.'):
+                    window['TrigLevel'].update(values['TrigLevel'][:-1])
+            elif values['TrigLevel'][0] == '-' and values['TrigLevel'][1] == '2':
+                if values['TrigLevel'][-1] not in ('0.'):
+                    window['TrigLevel'].update('-20')
+                    sg.Popup('The trigger level cannot be less than -20 V', background_color='pink',
+                             relative_location=(-125, 0), keep_on_top=True, text_color='black')
+            elif values['TrigLevel'][0] == '-' and values['TrigLevel'][1] in ('3456789'):
+                if values['TrigLevel'][-1] not in ('.'):
+                    window['TrigLevel'].update('-20')
+                    sg.Popup('The trigger level cannot be less than -20 V', background_color='pink',
+                             relative_location=(-125, 0), keep_on_top=True, text_color='black')
+            elif values['TrigLevel'][0] == '2' and values['TrigLevel'][1] == '0':
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
+                sg.Popup('The trigger level cannot be greater than +20 V', background_color='pink',
+                         relative_location=(-125, 0), keep_on_top=True, text_color='black')
+            elif values['TrigLevel'][-1] not in ('0123456789.'):
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
+
+        if len(values['TrigLevel']) == 4:
+            if values['TrigLevel'][0] == '-' and values['TrigLevel'][1] == '2' and values['TrigLevel'][2] == '0':
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
+                sg.Popup('The trigger level cannot be less than -20 V', background_color='pink',
+                         relative_location=(-125, 0), keep_on_top=True, text_color='black')
+            elif values['TrigLevel'][0] == '.':
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
+                sg.Popup('The trigger level precision is to the tenths place only', background_color='pink',
+                         relative_location=(-125, 0), keep_on_top=True, text_color='black')
+            elif values['TrigLevel'][1] == '.' or values['TrigLevel'][2] == '.':
+                if values['TrigLevel'][-1] not in ('0123456789'):
+                    window['TrigLevel'].update(values['TrigLevel'][:-1])
+            elif values['TrigLevel'][-1] not in ('0123456789.'):
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
+
+        if len(values['TrigLevel']) == 5:
+            if values['TrigLevel'][1] == '.':
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
+                sg.Popup('The trigger level precision is to the tenths place only', background_color='pink',
+                         relative_location=(-125, 0), keep_on_top=True, text_color='black')
+            elif values['TrigLevel'][2] == '.':
+                if values['TrigLevel'][-1] not in ('0123456789'):
+                    window['TrigLevel'].update(values['TrigLevel'][:-1])
+            elif values['TrigLevel'][-1] not in ('0123456789'):
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
+
+        if len(values['TrigLevel']) == 6:
+            if values['TrigLevel'][2] == '.':
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
+                sg.Popup('The trigger level precision is to the tenths place only', background_color='pink',
+                         relative_location=(-125, 0), keep_on_top=True, text_color='black')
+            elif values['TrigLevel'][3] == '.':
+                if values['TrigLevel'][-1] not in ('0123456789'):
+                    window['TrigLevel'].update(values['TrigLevel'][-1])
+            elif values['TrigLevel'][-1] not in ('0123456789'):
+                window['TrigLevel'].update(values['TrigLevel'][:-1])
+
+        if len(values['TrigLevel']) > 6:
+            window['TrigLevel'].update(values['TrigLevel'][:-1])
+            sg.Popup('The trigger level precision is to the tenths place only', background_color='pink',
+                     relative_location=(-125, 0), keep_on_top=True, text_color='black')
 
 
     if event == 'Submit':
