@@ -181,6 +181,24 @@ fig = plt.gcf()
 figure_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
 
 while True:
+    
+    while PORTname_list == ['']:
+
+        sg.Popup('Plug in your Teensy to a USB port.', background_color='pink',
+                 relative_location=(-125, 0), keep_on_top=True, text_color='black')
+
+        PORT_list = list_ports.comports()
+        PORTlen = len(PORT_list)
+
+        PORTname_list = [PORT_list[i][1] for i in range(PORTlen)]
+        PORTname_list.sort()
+        PORTname_list.insert(0, '')
+
+        window['Serial'].update(values=PORTname_list)
+
+        sg.Popup('Now select a port in the Serial list', background_color='pink',
+                 relative_location=(-125, 0), keep_on_top=True, text_color='black')
+        
     event, values = window.read()  # Read  values entered by user
     settings_list=values
 
@@ -204,8 +222,8 @@ while True:
         except serial.SerialException:
             PORTname_list.remove(settings_list['Serial'])
             window['Serial'].update(value='', values=PORTname_list)
-            sg.Popup('That port is busy.  You must select a different port', background_color='pink',
-                     relative_location=(-125,0), keep_on_top=True, text_color='black')
+            sg.Popup('You have selected the incorrect serial port.  Make sure the Teensy is plugged into a USB port and is set to "Dual Serial" in the Arduino IDE.', 
+                     background_color='pink', relative_location=(-125,0), keep_on_top=True, text_color='black')
 
 
     if event == 'TrigLevel' and values['TrigLevel']:
