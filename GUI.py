@@ -424,20 +424,20 @@ while True:
                 
                 # Finding Max and Min Values
 
-                Max = df.max()
-                Min = df.min()
+                #Max = df.max()
+                #Min = df.min()
 
                 # Finding RMS Value
 
-                rows = len(df)
-                rows_squared = df['Voltage'] ** 2
-                rows_total = sum(rows_squared)
-                r = rows_total / rows
-                RMS = math.sqrt(r)
+                #rows = len(df)
+                #rows_squared = df['Voltage'] ** 2
+                #rows_total = sum(rows_squared)
+                #r = rows_total / rows
+                #RMS = math.sqrt(r)
 
                 # Finding Peak-to-peak Voltage
 
-                Pk-to-Pk = RMS * 2 * math.sqrt(2)
+                #Pk-to-Pk = RMS * 2 * math.sqrt(2)
 
                 # Finding Frequency
 
