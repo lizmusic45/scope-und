@@ -407,8 +407,13 @@ while True:
 
                 arduino.read_until(b'a')
 
-                data = arduino.read_until(b'e')[:-1]
-                print(data)
+                data1 = arduino.read_until(b'e')[:-1]
+                data2 = arduino.read_until(b'f')[:-1]
+                data3 = arduino.read_until(b'g')[:-1]
+                data4 = arduino.read_until(b'h')[:-1]
+                data5 = arduino.read_until(b'i')[:-1]
+
+                data = data1+data2+data3+data4+data5
 
                 strData = data.decode()
 
