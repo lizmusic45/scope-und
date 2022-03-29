@@ -1,7 +1,7 @@
 char start_byte = '0';
 char settings_bytes[19] = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'};  //settings are sent in this order  [Vert1, Vert2, Vert3, Vert4, 
                                                  //Vert1Scale, Vert2Scale, Vert3Scale, Vert4Scale, Horiz, HorizScale, 
-                                                 //TrigCh, TrigType,
+                                                 //TrigCh, TrigType, TrigScale, 
                                                  //TrigLevel[0], TrigLevel[1], TrigLevel[2], TrigLevel[3]]
 String settings_strings;
 
@@ -9,6 +9,8 @@ bool printSettings = 0;
 
 byte chDict[16] = {B00000000, B00000010, B00001000, B00001010, B00100000, B00100010, B00101000, B00101010, 
                    B10000000, B10000010, B10001000, B10001010, B10100000, B10100010, B10101000, B10101010};
+
+int numChDict[16] = {1, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4};
 
 bool printAcquisition = 0;
 
@@ -56,26 +58,37 @@ void loop() {
   if(printSettings == 1) {
     Serial.print("ChList: ");
     Serial.println(chDict[settings_bytes[0]-65]);
-    Serial.print("Ch1: ");
-    Serial.print((int(settings_bytes[1])-48));
-    Serial.print(" x 10^-");
-    Serial.print(settings_bytes[5]);
-    Serial.println(" V");
-    Serial.print("Ch2: ");
-    Serial.print((int(settings_bytes[2])-48));
-    Serial.print(" x 10^-");
-    Serial.print(settings_bytes[6]);
-    Serial.println(" V");
-    Serial.print("Ch3: ");
-    Serial.print(settings_bytes[3]);
-    Serial.print(" x 10^-");
-    Serial.print(settings_bytes[7]);
-    Serial.println(" V");
-    Serial.print("Ch4: ");
-    Serial.print(settings_bytes[4]);
-    Serial.print(" x 10^-");
-    Serial.print(settings_bytes[8]);
-    Serial.println(" V");
+    Serial.print("NumChs: ");
+    Serial.println(numChDict[settings_bytes[0]-65]);
+    Serial.print("Chs: ");
+    if ((chDict[settings_bytes[0]-65] & B10000000)==128) {
+      Serial.print("Ch1: ");
+      Serial.print((int(settings_bytes[1])-48));
+      Serial.print(" x 10^-");
+      Serial.print(settings_bytes[5]);
+      Serial.println(" V");
+    }
+    if ((chDict[settings_bytes[0]-65] & B00100000)==32) {
+      Serial.print("Ch2: ");
+      Serial.print((int(settings_bytes[2])-48));
+      Serial.print(" x 10^-");
+      Serial.print(settings_bytes[6]);
+      Serial.println(" V");
+    }
+    if ((chDict[settings_bytes[0]-65] & B00001000)==8) {
+      Serial.print("Ch3: ");
+      Serial.print(settings_bytes[3]);
+      Serial.print(" x 10^-");
+      Serial.print(settings_bytes[7]);
+      Serial.println(" V");
+    }
+    if ((chDict[settings_bytes[0]-65] & B00000010)==2) {
+      Serial.print("Ch4: ");
+      Serial.print(settings_bytes[4]);
+      Serial.print(" x 10^-");
+      Serial.print(settings_bytes[8]);
+      Serial.println(" V");
+    }
     Serial.print("Horiz: ");
     Serial.print(settings_bytes[9]);
     Serial.print(" x 10^");
@@ -94,26 +107,207 @@ void loop() {
 
   if (printAcquisition == 1) {
     //add switch case later
-    for(int x=0;x<63;x++){
-      float y = float(x)/10;
-      //delay(200);
-      Serial.print(sin(y)*(int(settings_strings[1])-48));
-      Serial.print(",");
-      Serial.println(sin(y)*2);
-      SerialUSB1.print(sin(y)*(int(settings_bytes[1])-48)*pow(10,-(int(settings_bytes[5])-48)));
+    for(int x=0;x<100;x++){
+      float y = float(x)/36;
+
+      if ((chDict[settings_bytes[0]-65] & B10000000)==128) {
+        SerialUSB1.print(sin(y)*(int(settings_bytes[1])-48)*pow(10,-(int(settings_bytes[5])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
       SerialUSB1.print(',');
-      SerialUSB1.print(sin(y)*2*(int(settings_bytes[2])-48)*pow(10,-(int(settings_bytes[6])-48)));
+
+      if ((chDict[settings_bytes[0]-65] & B00100000)==32) {
+        SerialUSB1.print(sin(y)*2*(int(settings_bytes[2])-48)*pow(10,-(int(settings_bytes[6])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
       SerialUSB1.print(',');
-      SerialUSB1.print(sin(y)*3*(int(settings_bytes[3])-48)*pow(10,-(int(settings_bytes[7])-48)));
+
+      if ((chDict[settings_bytes[0]-65] & B00001000)==8) {
+        SerialUSB1.print(sin(y)*3*(int(settings_bytes[3])-48)*pow(10,-(int(settings_bytes[7])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
       SerialUSB1.print(',');
-      SerialUSB1.print(sin(y)/2*(int(settings_bytes[4])-48)*pow(10,-(int(settings_bytes[8])-48)));
+
+      if ((chDict[settings_bytes[0]-65] & B00000010)==2) {
+        SerialUSB1.print(sin(y)/2*(int(settings_bytes[4])-48)*pow(10,-(int(settings_bytes[8])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
       SerialUSB1.print(',');
+      
       SerialUSB1.print(x*(int(settings_bytes[9])-48)*pow(10,int(settings_bytes[10])-48));
       SerialUSB1.print('\n');
     }
     SerialUSB1.print('e');
+
+    for(int x=100;x<200;x++){
+      float y = float(x)/36;
+
+      if ((chDict[settings_bytes[0]-65] & B10000000)==128) {
+        SerialUSB1.print(sin(y)*(int(settings_bytes[1])-48)*pow(10,-(int(settings_bytes[5])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+
+      if ((chDict[settings_bytes[0]-65] & B00100000)==32) {
+        SerialUSB1.print(sin(y)*2*(int(settings_bytes[2])-48)*pow(10,-(int(settings_bytes[6])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+
+      if ((chDict[settings_bytes[0]-65] & B00001000)==8) {
+        SerialUSB1.print(sin(y)*3*(int(settings_bytes[3])-48)*pow(10,-(int(settings_bytes[7])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+
+      if ((chDict[settings_bytes[0]-65] & B00000010)==2) {
+        SerialUSB1.print(sin(y)/2*(int(settings_bytes[4])-48)*pow(10,-(int(settings_bytes[8])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+      
+      SerialUSB1.print(x*(int(settings_bytes[9])-48)*pow(10,int(settings_bytes[10])-48));
+      SerialUSB1.print('\n');
+    }
+    SerialUSB1.print('f');
+
+    for(int x=200;x<300;x++){
+      float y = float(x)/36;
+
+      if ((chDict[settings_bytes[0]-65] & B10000000)==128) {
+        SerialUSB1.print(sin(y)*(int(settings_bytes[1])-48)*pow(10,-(int(settings_bytes[5])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+
+      if ((chDict[settings_bytes[0]-65] & B00100000)==32) {
+        SerialUSB1.print(sin(y)*2*(int(settings_bytes[2])-48)*pow(10,-(int(settings_bytes[6])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+
+      if ((chDict[settings_bytes[0]-65] & B00001000)==8) {
+        SerialUSB1.print(sin(y)*3*(int(settings_bytes[3])-48)*pow(10,-(int(settings_bytes[7])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+
+      if ((chDict[settings_bytes[0]-65] & B00000010)==2) {
+        SerialUSB1.print(sin(y)/2*(int(settings_bytes[4])-48)*pow(10,-(int(settings_bytes[8])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+      
+      SerialUSB1.print(x*(int(settings_bytes[9])-48)*pow(10,int(settings_bytes[10])-48));
+      SerialUSB1.print('\n');
+    }
+    SerialUSB1.print('g');
+
+    for(int x=300;x<400;x++){
+      float y = float(x)/36;
+
+      if ((chDict[settings_bytes[0]-65] & B10000000)==128) {
+        SerialUSB1.print(sin(y)*(int(settings_bytes[1])-48)*pow(10,-(int(settings_bytes[5])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+
+      if ((chDict[settings_bytes[0]-65] & B00100000)==32) {
+        SerialUSB1.print(sin(y)*2*(int(settings_bytes[2])-48)*pow(10,-(int(settings_bytes[6])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+
+      if ((chDict[settings_bytes[0]-65] & B00001000)==8) {
+        SerialUSB1.print(sin(y)*3*(int(settings_bytes[3])-48)*pow(10,-(int(settings_bytes[7])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+
+      if ((chDict[settings_bytes[0]-65] & B00000010)==2) {
+        SerialUSB1.print(sin(y)/2*(int(settings_bytes[4])-48)*pow(10,-(int(settings_bytes[8])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+      
+      SerialUSB1.print(x*(int(settings_bytes[9])-48)*pow(10,int(settings_bytes[10])-48));
+      SerialUSB1.print('\n');
+    }
+    SerialUSB1.print('h');
+
+    for(int x=400;x<500;x++){
+      float y = float(x)/36;
+
+      if ((chDict[settings_bytes[0]-65] & B10000000)==128) {
+        SerialUSB1.print(sin(y)*(int(settings_bytes[1])-48)*pow(10,-(int(settings_bytes[5])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+
+      if ((chDict[settings_bytes[0]-65] & B00100000)==32) {
+        SerialUSB1.print(sin(y)*2*(int(settings_bytes[2])-48)*pow(10,-(int(settings_bytes[6])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+
+      if ((chDict[settings_bytes[0]-65] & B00001000)==8) {
+        SerialUSB1.print(sin(y)*3*(int(settings_bytes[3])-48)*pow(10,-(int(settings_bytes[7])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+
+      if ((chDict[settings_bytes[0]-65] & B00000010)==2) {
+        SerialUSB1.print(sin(y)/2*(int(settings_bytes[4])-48)*pow(10,-(int(settings_bytes[8])-48)));
+      }
+      else {
+        SerialUSB1.print(0);
+      }
+      SerialUSB1.print(',');
+      
+      SerialUSB1.print(x*(int(settings_bytes[9])-48)*pow(10,int(settings_bytes[10])-48));
+      SerialUSB1.print('\n');
+    }
+    SerialUSB1.print('i');
     printAcquisition = 0;
-    delay(1000);
+    
   }
 
 }
@@ -137,4 +331,3 @@ float triggerValue(char a, char b, char c, char d, char e){
   return g; //return result to function
 
 }
-
