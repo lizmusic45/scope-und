@@ -1,0 +1,6 @@
+deltas = df.diff().drop(0)
+slope = deltas['Time']/deltas['Voltage']
+zeros = 0
+for val in slope:
+    if val == 0:
+        val = zeros
