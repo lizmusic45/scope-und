@@ -43,6 +43,8 @@ chDict = {
     '0b10101010': b'P'
 }
 
+sendDefaultSettings = 0
+beginSerial = 0
 
 serialportselect=[sg.Text('Serial'), sg.Combo(values=PORTname_list, size=(30,1), readonly=True,
                                               default_value='', enable_events=True, key='Serial')]
@@ -83,21 +85,21 @@ options = [
 
             [sg.Frame('Triggers',
                 [
-                    [sg.Radio('Ch1', 'rd_triggers', default=True, key='Trig1'),
-                     sg.Radio('Ch2', 'rd_triggers', key='Trig2'),
-                     sg.Radio('Ch3', 'rd_triggers', key='Trig3'),
-                     sg.Radio('Ch4', 'rd_triggers', key='Trig4')],
+                    [sg.Radio('Ch1', group_id='rd_triggers', default=True, key='Trig1'),
+                     sg.Radio('Ch2', group_id='rd_triggers', key='Trig2'),
+                     sg.Radio('Ch3', group_id='rd_triggers', key='Trig3'),
+                     sg.Radio('Ch4', group_id='rd_triggers', key='Trig4')],
 
                     [sg.Text('Type:'),
-                     sg.Radio('Free', 'rd_type', key='Free'),
-                     sg.Radio('Rise', 'rd_type', default=True, key='Rise'),
-                     sg.Radio('Fall', 'rd_type', key='Fall')],
+                     sg.Radio('Free', group_id='rd_type', default=True, key='Free'),
+                     sg.Radio('Rise', group_id='rd_type', key='Rise'),
+                     sg.Radio('Fall', group_id='rd_type', key='Fall')],
 
                     [sg.Text('        '),
-                     sg.Radio('Higher', 'rd-type', key='Higher'),
-                     sg.Radio('Lower', 'rd-type', key='Lower')],
+                     sg.Radio('Higher', group_id='rd_type', key='Higher'),
+                     sg.Radio('Lower', group_id='rd_type', key='Lower')],
 
-                    [sg.Text('Level:'), sg.Input(size=(6,18), default_text='10',
+                    [sg.Text('Level:'), sg.Input(size=(6,18), default_text='0.10',
                                                  enable_events=True, key='TrigLevel'),
                      sg.Text('V')]
                 ],
@@ -115,7 +117,7 @@ options = [
             border_width = 10)]
           ]
 
-
+#---------------Data that Alex will supply with his code.  this is just a data set for an example ------------------
 ch1fns = ['Ch1', '4.0 V', '1 Hz', '2.83 V', '-2.0 V', '2.0 V']
 ch2fns = ['Ch2', '-', '-', '-', '-', '-']
 ch3fns = ['Ch3', '-', '-', '-', '-', '-']
@@ -164,7 +166,7 @@ def delete_figure_agg(figure_agg):
 layout = [[sg.Column(choices), (sg.Canvas(key='-CANVAS-'))]], fns
 
 # create the form and show it without the plot
-window = sg.Window('Demo Application - 4 Channel Oscilloscope', layout, finalize=True) #location=(100, 25)
+window = sg.Window('Demo Application - 4 Channel Oscilloscope', layout, finalize=True)
 
 # Generating time data using arange function from numpy
 time = np.arange(-3*np.pi, 3*np.pi, 0.01)
@@ -181,7 +183,7 @@ fig = plt.gcf()
 figure_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
 
 while True:
-    
+
     while PORTname_list == ['']:
 
         sg.Popup('Plug in your Teensy to a USB port.', background_color='pink',
@@ -196,13 +198,19 @@ while True:
 
         window['Serial'].update(values=PORTname_list)
 
-        sg.Popup('Now select a port in the Serial list', background_color='pink',
-                 relative_location=(-125, 0), keep_on_top=True, text_color='black')
-        
+    if beginSerial == 0:
+        sg.Popup('Select a port in the Serial list', background_color='pink',
+                 relative_location=(-125, 0), non_blocking=True, keep_on_top=True,
+                 text_color='black')
+
     event, values = window.read()  # Read  values entered by user
     settings_list=values
 
+
     if event == sg.WIN_CLOSED:  # If window is closed by user terminate While Loop
+        break
+
+    if event == 'Close':
         break
 
     if figure_agg:
@@ -218,17 +226,19 @@ while True:
 
         try:
             arduino = serial.Serial(PORT_name, baudrate=9600, timeout=0.1)
+            beginSerial = 1
+            sendDefaultSettings = 1
 
         except serial.SerialException:
             PORTname_list.remove(settings_list['Serial'])
             window['Serial'].update(value='', values=PORTname_list)
-            sg.Popup('You have selected the incorrect serial port.  Make sure the Teensy is plugged into a USB port and is set to "Dual Serial" in the Arduino IDE.', 
-                     background_color='pink', relative_location=(-125,0), keep_on_top=True, text_color='black')
+            sg.Popup('You have selected the incorrect port.  Make sure the Teensy is plugged in and set to "Dual Serial" mode in the Arduino IDE.', background_color='pink',
+                     relative_location=(-125,0), keep_on_top=True, text_color='black')
 
 
     if event == 'TrigLevel' and values['TrigLevel']:
 
-                if len(values['TrigLevel']) == 1:
+        if len(values['TrigLevel']) == 1:
             if values['TrigLevel'] not in ('0123456789.-'):
                 window['TrigLevel'].update(values['TrigLevel'][:-1])
 
@@ -320,11 +330,13 @@ while True:
                      relative_location=(-125, 0), keep_on_top=True, text_color='black')
 
 
-    if event == 'Submit':
+    if event == 'Submit' or sendDefaultSettings == 1:
 
         if settings_list['Serial']=='':
+
             sg.Popup('You must select a port in the Serial list', background_color='pink',
-                     relative_location=(-125,0), keep_on_top=True, text_color='black')
+                     relative_location=(-125,0), non_blocking=True,
+                     keep_on_top=True, text_color='black')
 
         else:
 
@@ -354,6 +366,7 @@ while True:
 
             if settings_list['Free']==1:
                 TrigLevel = '0000'
+                TrigLevelSign = '0'
             else:
                 if settings_list['TrigLevel'][0] == '-':
                     TrigLevelSign = '1'
@@ -377,7 +390,6 @@ while True:
                 while len(TrigLevel) < 4:
                     TrigLevel = TrigLevel + '0'
 
-            #TrigLevelSet = [TrigLevel[k] for k in range(len(TrigLevel))]
 
             Settings = V + VMult + [H] + [HMult] + [TrigCh] + [TrigType] + [TrigLevelSign] + [TrigLevel]
 
@@ -386,80 +398,81 @@ while True:
 
             #----------writing the settings to the Teensy-------------------#
 
-            arduino.write(b's')
+            try:
+                arduino.write(b's')
 
-            arduino.read_until(b's')
+                arduino.read_until(b's')
 
-            arduino.write(ChanByte)
+                arduino.write(ChanByte)
 
-            for k in range(len(SendSettingsbyte)):
-                arduino.write(SendSettingsbyte[k])
+                for k in range(len(SendSettingsbyte)):
+                    arduino.write(SendSettingsbyte[k])
 
-            arduino.write(b'e')
+                arduino.write(b'e')
 
-            #------if Acquire is selected, get the data from the Teensy-------------#
+                # ------if Acquire is selected, get the data from the Teensy-------------#
 
-            if settings_list['Acquire']==True:
+                if settings_list['Acquire'] == True:
+                    # ----clear plot?-----#
 
-                #----clear plot?-----#
+                    arduino.write(b'a')
 
-                arduino.write(b'a')
+                    arduino.read_until(b'a')
 
-                arduino.read_until(b'a')
+                    data1 = arduino.read_until(b'e')[:-1]
+                    data2 = arduino.read_until(b'f')[:-1]
+                    data3 = arduino.read_until(b'g')[:-1]
+                    data4 = arduino.read_until(b'h')[:-1]
+                    data5 = arduino.read_until(b'i')[:-1]
 
-                data1 = arduino.read_until(b'e')[:-1]
-                data2 = arduino.read_until(b'f')[:-1]
-                data3 = arduino.read_until(b'g')[:-1]
-                data4 = arduino.read_until(b'h')[:-1]
-                data5 = arduino.read_until(b'i')[:-1]
+                    data = data1 + data2 + data3 + data4 + data5
 
-                data = data1+data2+data3+data4+data5
+                    strData = data.decode()
 
-                strData = data.decode()
+                    strDataFile = StringIO('Ch1,' + 'Ch2,' + 'Ch3,' + 'Ch4,' + 't\n' + strData)
 
-                strDataFile = StringIO('Ch1,' + 'Ch2,' + 'Ch3,' + 'Ch4,' + 't\n' + strData)
+                    df = pd.read_csv(strDataFile, sep=',', lineterminator='\n')
 
-                df = pd.read_csv(strDataFile, sep=',', lineterminator='\n')
-                
-                
-                # Finding Max and Min Values
+                    print(df)
 
-                #Max = df.max()
-                #Min = df.min()
+                    # Finding Max and Min Values
 
-                # Finding RMS Value
+                    # Max = df.max()
+                    # Min = df.min()
 
-                #rows = len(df)
-                #rows_squared = df['Voltage'] ** 2
-                #rows_total = sum(rows_squared)
-                #r = rows_total / rows
-                #RMS = math.sqrt(r)
+                    # Finding RMS Value
 
-                # Finding Peak-to-peak Voltage
+                    # rows = len(df)
+                    # rows_squared = df['Voltage'] ** 2
+                    # rows_total = sum(rows_squared)
+                    # r = rows_total / rows
+                    # RMS = math.sqrt(r)
 
-                #Pk-to-Pk = RMS * 2 * math.sqrt(2)
+                    # Finding Peak-to-peak Voltage
 
-                # Finding Frequency
+                    # Pk-to-Pk = RMS * 2 * math.sqrt(2)
 
-
-
-                print(df)
-
-                #fig = matplotlib.figure.Figure(figsize=(5, 4), dpi=100)
-
-                #fig.add_subplot(111).plot(df["t"], df["Ch1"], df["t"], df["Ch2"], df["t"], df["Ch3"], df["t"], df["Ch4"])
-
-                plt.figure(figsize=(6, 5), dpi=100)
-                plt.plot(df["t"], df["Ch1"], df["t"], df["Ch2"], df["t"], df["Ch3"], df["t"], df["Ch4"])
-                plt.grid()
-                plt.tick_params(grid_alpha=0.5)
-                fig = plt.gcf()
-
-                figure_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
+                    # Finding Frequency
 
 
-    if event == 'Close':
-        break
+
+                    plt.figure(figsize=(6, 5), dpi=100)
+                    plt.plot(df["t"], df["Ch1"], df["t"], df["Ch2"], df["t"], df["Ch3"], df["t"], df["Ch4"])
+                    plt.grid()
+                    plt.tick_params(grid_alpha=0.5)
+
+                    fig = plt.gcf()
+
+                    figure_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
+
+                sendDefaultSettings = 0
+
+            except Exception as e:
+
+                print(e)
+                beginSerial = 0
+
+
 # Close Window
 window.close()
 
