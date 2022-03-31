@@ -234,10 +234,12 @@ while True:
             PORT_name=PORT_list[PORT_index][0]
 
         except NameError:
-            beginSerial = 0
-            sendDefaultSettings = 0
-            PORTname_list = ['']
-            window['Serial'].update(value='', values=PORTname_list)
+            
+            if settings_list['Serial'] != '':
+                beginSerial = 0
+                sendDefaultSettings = 0
+                PORTname_list = ['']
+                window['Serial'].update(value='', values=PORTname_list)
 
         try:
             arduino = serial.Serial(PORT_name, baudrate=9600, timeout=0.1)
