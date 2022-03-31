@@ -13,6 +13,7 @@ from io import StringIO
 sg.theme("DarkTanBlue")
 # define layout
 
+
 VertList = ('10mV', '100mV', '1V')
 VertListMultiplier = (2, 1, 0) #in volts, so 10mV = 10^-2, 100mV = 10^-1, 1V = 10^0
 HorizList = ('10us', '100us', '1ms', '10ms', '100ms')
@@ -36,13 +37,16 @@ chDict = {
     '0b10101010': b'P'
 }
 
+firstOpen = 0
 sendDefaultSettings = 0
 beginSerial = 0
 PORT_list = []
-PORTname_list = ['']
+PORTname_list= ['']
+
 
 serialportselect=[sg.Text('Serial'), sg.Combo(values=PORTname_list, size=(30,1), readonly=True,
-                                              default_value='', enable_events=True, key='Serial')]
+                                              default_value='', enable_events=True, key='Serial'),
+                  sg.Button('Restart', font=('Times New Roman', 12))]
 
 options = [
             [sg.Frame('Channels',
@@ -58,22 +62,26 @@ options = [
             [sg.Frame('Vertical',
                 [
                     [sg.Slider(range=(1, 5), orientation='v', size=(5, 28), default_value=1, resolution=2,
-                               tick_interval=2, disable_number_display=True, pad=(11, 0), key='Vert1'),
+                               tick_interval=2, disable_number_display=True, pad=(11, 0), key='Vert1',
+                               enable_events=True),
                      sg.Slider(range=(1, 5), orientation='v', size=(5, 28), default_value=1, resolution=2,
-                               tick_interval=2, disable_number_display=True, pad=(11, 0), key='Vert2'),
+                               tick_interval=2, disable_number_display=True, pad=(11, 0), key='Vert2',
+                               enable_events=True),
                      sg.Slider(range=(1, 5), orientation='v', size=(5, 28), default_value=1, resolution=2,
-                               tick_interval=2, disable_number_display=True, pad=(11, 0), key='Vert3'),
+                               tick_interval=2, disable_number_display=True, pad=(11, 0), key='Vert3',
+                               enable_events=True),
                      sg.Slider(range=(1, 5), orientation='v', size=(5, 28), default_value=1, resolution=2,
-                               tick_interval=2, disable_number_display=True, pad=(11, 0), key='Vert4')],
+                               tick_interval=2, disable_number_display=True, pad=(11, 0), key='Vert4',
+                               enable_events=True)],
 
                     [sg.Spin(values = VertList, size=(6,18), initial_value='1V',
-                             font=('Helvetica', 8), key='Vert1Scale'),
+                             font=('Helvetica', 8), key='Vert1Scale', enable_events=True),
                      sg.Spin(values = VertList, size=(6,18), initial_value='1V',
-                             font=('Helvetica', 8), key='Vert2Scale'),
+                             font=('Helvetica', 8), key='Vert2Scale', enable_events=True),
                      sg.Spin(values = VertList, size=(6,18), initial_value='1V',
-                             font=('Helvetica', 8), key='Vert3Scale'),
+                             font=('Helvetica', 8), key='Vert3Scale', enable_events=True),
                      sg.Spin(values = VertList, size=(6,18), initial_value='1V',
-                             font=('Helvetica', 8), key='Vert4Scale')]
+                             font=('Helvetica', 8), key='Vert4Scale', enable_events=True)]
                 ],
             title_color='yellow',
             border_width=10)],
@@ -123,7 +131,7 @@ headings = ['CH', 'Pk-to-Pk', 'Freq', 'RMS', 'Min', 'Max']
 
 fns = [
         sg.Button('Submit', font=('Times New Roman', 12)),
-        sg.Checkbox('Acquire', default=False, key='Acquire'),
+        sg.Checkbox('Acquire', default=False, key='Acquire', enable_events=True),
         sg.Button('Close', font=('Times New Roman', 12)),
 
         sg.Frame('Functions',
@@ -131,10 +139,11 @@ fns = [
                 [sg.Table(values=([ch1fns, ch2fns, ch3fns, ch4fns]), headings=headings,
                           auto_size_columns=False, col_widths=[8,8,8,8,8,8], num_rows=4,
                           row_colors=[(0,'blue'), (1,'orange'), (2,'green'), (3,'red')],
-                          hide_vertical_scroll=True, justification='center')
+                          hide_vertical_scroll=True, justification='center'),
+                 sg.Checkbox('Hold Screen', default=False, key = 'Hold')
                 ]
             ],
-        pad=((200,0),(0,0)),
+        pad=((175,0),(0,0)),
         title_color='yellow',
         border_width=10),
 
@@ -179,6 +188,13 @@ figure_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
 
 while True:
 
+    while firstOpen == 0:
+        sg.Popup('Open the Arduino IDE, go to "Tools" and set the Teensy to "Dual Serial."',
+                 background_color='pink', relative_location=(-125, 0), keep_on_top=True, text_color='black')
+        sg.Popup('Start the Serial Plotter and then plug in the Teensy to a USB port.',
+                 background_color='pink', relative_location=(-125, 0), keep_on_top=True, text_color='black')
+        firstOpen = 1
+
     while PORTname_list == ['']:
 
         PORT_list = list_ports.comports()
@@ -191,7 +207,7 @@ while True:
 
         if PORT_list == []:
 
-            sg.Popup('Plug in your Teensy to a USB port.', background_color='pink',
+            sg.Popup('Plug in the Teensy to a USB port.', background_color='pink',
                      relative_location=(-125, 0), keep_on_top=True, text_color='black')
 
             PORT_list = list_ports.comports()
@@ -201,7 +217,6 @@ while True:
             PORTname_list.sort()
             PORTname_list.insert(0, '')
             window['Serial'].update(values=PORTname_list)
-
 
     if beginSerial == 0:
         if window['Serial'] != '':
@@ -224,40 +239,52 @@ while True:
     if figure_agg:
         delete_figure_agg(figure_agg)
 
-    if event == 'Serial':
+    if event == 'Restart':
 
         try:
-            for j in range(len(PORT_list)):
-                if PORT_list[j][1] == settings_list['Serial']:
-                    PORT_index = j
+            arduino.close()
+        except:
+            continue
 
-            PORT_name=PORT_list[PORT_index][0]
+        beginSerial = 0
+        sendDefaultSettings = 0
+        Portname_list = ['']
+        window['Serial'].update(value='', values=PORTname_list, disabled=False)
 
-        except NameError:
-            
-            if settings_list['Serial'] != '':
+    if event == 'Serial':
+
+        if settings_list['Serial'] != '':
+            try:
+                for j in range(len(PORT_list)):
+                    if PORT_list[j][1] == settings_list['Serial']:
+                        PORT_index = j
+
+                PORT_name=PORT_list[PORT_index][0]
+
+            except NameError:
                 beginSerial = 0
                 sendDefaultSettings = 0
                 PORTname_list = ['']
                 window['Serial'].update(value='', values=PORTname_list)
 
-        try:
-            arduino = serial.Serial(PORT_name, baudrate=9600, timeout=0.1)
-            beginSerial = 1
-            sendDefaultSettings = 1
+            if beginSerial == 0:
+                try:
+                    arduino = serial.Serial(PORT_name, baudrate=9600, timeout=0.1)
+                    beginSerial = 1
+                    sendDefaultSettings = 1
+                    window['Serial'].update(disabled=True)
 
-        except NameError:
-            beginSerial = 0
-            sendDefaultSettings = 0
-            PORTname_list = ['']
-            window['Serial'].update(value='', values=PORTname_list)
+                except NameError:
+                    beginSerial = 0
+                    sendDefaultSettings = 0
+                    PORTname_list = ['']
+                    window['Serial'].update(value='', values=PORTname_list)
 
-        except serial.SerialException:
-            if settings_list['Serial'] != '':
-                PORTname_list.remove(settings_list['Serial'])
-                window['Serial'].update(value='', values=PORTname_list)
-                sg.Popup('You have selected the incorrect port.  Make sure the Teensy is plugged in and set to "Dual Serial" mode in the Arduino IDE.', background_color='pink',
-                         relative_location=(-125,0), keep_on_top=True, text_color='black')
+                except serial.SerialException:
+                    PORTname_list.remove(settings_list['Serial'])
+                    window['Serial'].update(value='', values=PORTname_list)
+                    sg.Popup('That port is for the Serial Plotter.', background_color='pink',
+                             relative_location=(-125,0), keep_on_top=True, text_color='black')
 
 
     if event == 'TrigLevel' and values['TrigLevel']:
@@ -356,145 +383,173 @@ while True:
 
     if event == 'Submit' or sendDefaultSettings == 1:
 
-        if settings_list['Serial']=='':
+        #---formatting the data to send to the Teensy---------#
 
-            sg.Popup('You must select a port in the Serial list', background_color='pink',
-                     relative_location=(-125,0), non_blocking=True,
-                     keep_on_top=True, text_color='black')
+        ChanStr = '0b'+str(1*settings_list['Ch1'])+'0'+str(1*settings_list['Ch2'])+'0'+str(1*settings_list['Ch3'])+'0'+str(1*settings_list['Ch4'])+'0'
 
-        else:
+        ChanByte = chDict[ChanStr]
 
-            #---formatting the data to send to the Teensy---------#
-
-            ChanStr = '0b'+str(1*settings_list['Ch1'])+'0'+str(1*settings_list['Ch2'])+'0'+str(1*settings_list['Ch3'])+'0'+str(1*settings_list['Ch4'])+'0'
-
-            ChanByte = chDict[ChanStr]
-
-            V = [int(settings_list['Vert1']*settings_list['Ch1']), int(settings_list['Vert2']*settings_list['Ch2']),
+        V = [int(settings_list['Vert1']*settings_list['Ch1']), int(settings_list['Vert2']*settings_list['Ch2']),
                  int(settings_list['Vert3']*settings_list['Ch3']), int(settings_list['Vert4']*settings_list['Ch4'])]
 
-            VMult = [VertListMultiplier[VertList.index(settings_list['Vert1Scale'])],
+        VMult = [VertListMultiplier[VertList.index(settings_list['Vert1Scale'])],
                      VertListMultiplier[VertList.index(settings_list['Vert2Scale'])],
                      VertListMultiplier[VertList.index(settings_list['Vert3Scale'])],
                      VertListMultiplier[VertList.index(settings_list['Vert4Scale'])]]
 
-            H = int(settings_list['Horiz'])
+        H = int(settings_list['Horiz'])
 
-            HMult = HorizListMultiplier[HorizList.index(settings_list['HorizScale'])]
+        HMult = HorizListMultiplier[HorizList.index(settings_list['HorizScale'])]
 
-            TrigCh = [settings_list['Trig1'], settings_list['Trig2'], settings_list['Trig3'],
+        TrigCh = [settings_list['Trig1'], settings_list['Trig2'], settings_list['Trig3'],
                       settings_list['Trig4']].index(1)
 
-            TrigType = [settings_list['Free'], settings_list['Rise'], settings_list['Fall'],
+        TrigType = [settings_list['Free'], settings_list['Rise'], settings_list['Fall'],
                         settings_list['Higher'], settings_list['Lower']].index(1)
 
-            if settings_list['Free']==1:
-                TrigLevel = '0000'
-                TrigLevelSign = '0'
+        if settings_list['Free']==1:
+            TrigLevel = '0000'
+            TrigLevelSign = '0'
+        else:
+            if settings_list['TrigLevel'][0] == '-':
+                TrigLevelSign = '1'
+                TrigLevel = settings_list['TrigLevel'][1:]
             else:
-                if settings_list['TrigLevel'][0] == '-':
-                    TrigLevelSign = '1'
-                    TrigLevel = settings_list['TrigLevel'][1:]
-                else:
-                    TrigLevelSign = '0'
-                    TrigLevel = settings_list['TrigLevel']
-                if '.' not in TrigLevel:
-                    TrigLevel = TrigLevel + '.'
-                else:
-                    TrigLevel = TrigLevel
-                if TrigLevel[0] == '.':
-                    TrigLevel = '0' + '0' + TrigLevel[1:]
-                elif TrigLevel[1] == '.':
-                    TrigLevel = '0' + TrigLevel[0] + TrigLevel[2:]
-                elif TrigLevel[2] == '.':
-                    TrigLevel = TrigLevel[0] + TrigLevel[1] + TrigLevel[3:]
-                else:
-                    TrigLevel = TrigLevel
+                TrigLevelSign = '0'
+                TrigLevel = settings_list['TrigLevel']
+            if '.' not in TrigLevel:
+                TrigLevel = TrigLevel + '.'
+            else:
+                TrigLevel = TrigLevel
+            if TrigLevel[0] == '.':
+                TrigLevel = '0' + '0' + TrigLevel[1:]
+            elif TrigLevel[1] == '.':
+                TrigLevel = '0' + TrigLevel[0] + TrigLevel[2:]
+            elif TrigLevel[2] == '.':
+                TrigLevel = TrigLevel[0] + TrigLevel[1] + TrigLevel[3:]
+            else:
+                TrigLevel = TrigLevel
 
-                while len(TrigLevel) < 4:
-                    TrigLevel = TrigLevel + '0'
+            while len(TrigLevel) < 4:
+                TrigLevel = TrigLevel + '0'
 
 
-            Settings = V + VMult + [H] + [HMult] + [TrigCh] + [TrigType] + [TrigLevelSign] + [TrigLevel]
+        Settings = V + VMult + [H] + [HMult] + [TrigCh] + [TrigType] + [TrigLevelSign] + [TrigLevel]
 
-            SendSettings = np.array(Settings)
-            SendSettingsbyte = SendSettings.astype(bytes)
+        SendSettings = np.array(Settings)
+        SendSettingsbyte = SendSettings.astype(bytes)
 
             #----------writing the settings to the Teensy-------------------#
 
-            try:
-                arduino.write(b's')
+        try:
+            arduino.write(b's')
 
-                arduino.read_until(b's')
+            arduino.read_until(b's')
 
-                arduino.write(ChanByte)
+            arduino.write(ChanByte)
 
-                for k in range(len(SendSettingsbyte)):
-                    arduino.write(SendSettingsbyte[k])
+            for k in range(len(SendSettingsbyte)):
+                arduino.write(SendSettingsbyte[k])
 
-                arduino.write(b'e')
+            arduino.write(b'e')
 
-                # ------if Acquire is selected, get the data from the Teensy-------------#
+            # ------if Acquire is selected, get the data from the Teensy-------------#
 
-                if settings_list['Acquire'] == True:
+            if settings_list['Acquire'] == True:
                     # ----clear plot?-----#
 
-                    arduino.write(b'a')
+                arduino.write(b'a')
 
-                    arduino.read_until(b'a')
+                arduino.read_until(b'a')
 
-                    data1 = arduino.read_until(b'e')[:-1]
-                    data2 = arduino.read_until(b'f')[:-1]
-                    data3 = arduino.read_until(b'g')[:-1]
-                    data4 = arduino.read_until(b'h')[:-1]
-                    data5 = arduino.read_until(b'i')[:-1]
+                data1 = arduino.read_until(b'e')[:-1]
+                data2 = arduino.read_until(b'f')[:-1]
+                data3 = arduino.read_until(b'g')[:-1]
+                data4 = arduino.read_until(b'h')[:-1]
+                data5 = arduino.read_until(b'i')[:-1]
 
-                    data = data1 + data2 + data3 + data4 + data5
+                data = data1 + data2 + data3 + data4 + data5
 
-                    strData = data.decode()
+                strData = data.decode()
 
-                    strDataFile = StringIO('Ch1,' + 'Ch2,' + 'Ch3,' + 'Ch4,' + 't\n' + strData)
+                strDataFile = StringIO('Ch1,' + 'Ch2,' + 'Ch3,' + 'Ch4,' + 't\n' + strData)
 
-                    df = pd.read_csv(strDataFile, sep=',', lineterminator='\n')
+                df = pd.read_csv(strDataFile, sep=',', lineterminator='\n')
 
-                    print(df)
+                print(df)
 
-                    # Finding Max and Min Values
+                # Finding Max and Min Values
 
-                    # Max = df.max()
-                    # Min = df.min()
+                # Max = df.max()
+                # Min = df.min()
 
-                    # Finding RMS Value
+                # Finding RMS Value
 
-                    # rows = len(df)
-                    # rows_squared = df['Voltage'] ** 2
-                    # rows_total = sum(rows_squared)
-                    # r = rows_total / rows
-                    # RMS = math.sqrt(r)
+                # rows = len(df)
+                # rows_squared = df['Voltage'] ** 2
+                # rows_total = sum(rows_squared)
+                # r = rows_total / rows
+                # RMS = math.sqrt(r)
 
-                    # Finding Peak-to-peak Voltage
+                # Finding Peak-to-peak Voltage
 
-                    # Pk-to-Pk = RMS * 2 * math.sqrt(2)
+                # Pk-to-Pk = RMS * 2 * math.sqrt(2)
 
-                    # Finding Frequency
+                # Finding Frequency
 
+                plt.figure(figsize=(6, 5), dpi=100)
+                plt.plot(df.index, ((df["Ch1"]/(V[0]*10**-VMult[0]))+20)*(4095-0)/(20+20)+0,
+                         df.index, ((df["Ch2"]/(V[1]*10**-VMult[1]))+20)*(4095-0)/(20+20)+0,
+                         df.index, ((df["Ch3"]/(V[2]*10**-VMult[2]))+20)*(4095-0)/(20+20)+0,
+                         df.index, ((df["Ch4"]/(V[0]*10**-VMult[3]))+20)*(4095-0)/(20+20)+0)
+                plt.axhline(4096/2, 0, 500)
+                plt.grid()
+                plt.tick_params(grid_alpha=0.5)
 
+                fig = plt.gcf()
 
-                    plt.figure(figsize=(6, 5), dpi=100)
-                    plt.plot(df["t"], df["Ch1"], df["t"], df["Ch2"], df["t"], df["Ch3"], df["t"], df["Ch4"])
-                    plt.grid()
-                    plt.tick_params(grid_alpha=0.5)
+                figure_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
+                window['Hold'].update(True)
 
-                    fig = plt.gcf()
+            sendDefaultSettings = 0
 
-                    figure_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
+        except:
+            beginSerial = 0
+            sendDefaultSettings = 0
+            
+    if event == 'Acquire' and settings_list['Acquire'] is False and settings_list['Hold'] is True:
+        window['Hold'].update(False)
 
-                sendDefaultSettings = 0
+    if event == 'Vert1' and settings_list['Ch1'] is True and settings_list['Hold'] is True or \
+            event == 'Vert2' and settings_list['Ch2'] is True and settings_list['Hold'] is True or \
+            event == 'Vert3' and settings_list['Ch3'] is True and settings_list['Hold'] is True or \
+            event == 'Vert4' and settings_list['Ch4'] is True and settings_list['Hold'] is True or \
+            event == 'Vert1Scale' and settings_list['Ch1'] is True and settings_list['Hold'] is True or \
+            event == 'Vert2Scale' and settings_list['Ch2'] is True and settings_list['Hold'] is True or \
+            event == 'Vert3Scale' and settings_list['Ch3'] is True and settings_list['Hold'] is True or \
+            event == 'Vert4Scale' and settings_list['Ch4'] is True and settings_list['Hold'] is True:
 
-            except Exception as e:
+        plt.figure(figsize=(6, 5), dpi=100)
+        plt.plot(df.index, ((df["Ch1"] / (int(settings_list['Vert1']) * 10 ** \
+                                          -VertListMultiplier[VertList.index(settings_list['Vert1Scale'])])) + 20) \
+                 * (4095 - 0) / (20 + 20) + 0,
+                 df.index, ((df["Ch2"] / (int(settings_list['Vert2']) * 10 ** \
+                                          -VertListMultiplier[VertList.index(settings_list['Vert2Scale'])])) + 20) \
+                 * (4095 - 0) / (20 + 20) + 0,
+                 df.index, ((df["Ch3"] / (int(settings_list['Vert3']) * 10 ** \
+                                          -VertListMultiplier[VertList.index(settings_list['Vert3Scale'])])) + 20) \
+                 * (4095 - 0) / (20 + 20) + 0,
+                 df.index, ((df["Ch4"] / (int(settings_list['Vert4']) * 10 ** \
+                                          -VertListMultiplier[VertList.index(settings_list['Vert4Scale'])])) + 20) \
+                 * (4095 - 0) / (20 + 20) + 0)
+        plt.axhline(4096 / 2, 0, 500)
+        plt.grid()
+        plt.tick_params(grid_alpha=0.5)
 
-                print(e)
-                beginSerial = 0
+        fig = plt.gcf()
+
+        figure_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
+        window['Hold'].update(True)
 
 
 # Close Window
