@@ -13,13 +13,6 @@ from io import StringIO
 sg.theme("DarkTanBlue")
 # define layout
 
-PORT_list = list_ports.comports()
-PORTlen = len(PORT_list)
-
-PORTname_list = [PORT_list[i][1] for i in range(PORTlen)]
-PORTname_list.sort()
-PORTname_list.insert(0,'')
-
 VertList = ('10mV', '100mV', '1V')
 VertListMultiplier = (2, 1, 0) #in volts, so 10mV = 10^-2, 100mV = 10^-1, 1V = 10^0
 HorizList = ('10us', '100us', '1ms', '10ms', '100ms')
@@ -45,6 +38,8 @@ chDict = {
 
 sendDefaultSettings = 0
 beginSerial = 0
+PORT_list = []
+PORTname_list = ['']
 
 serialportselect=[sg.Text('Serial'), sg.Combo(values=PORTname_list, size=(30,1), readonly=True,
                                               default_value='', enable_events=True, key='Serial')]
@@ -186,19 +181,32 @@ while True:
 
     while PORTname_list == ['']:
 
-        sg.Popup('Plug in your Teensy to a USB port.', background_color='pink',
-                 relative_location=(-125, 0), keep_on_top=True, text_color='black')
-
         PORT_list = list_ports.comports()
         PORTlen = len(PORT_list)
 
         PORTname_list = [PORT_list[i][1] for i in range(PORTlen)]
         PORTname_list.sort()
         PORTname_list.insert(0, '')
-
         window['Serial'].update(values=PORTname_list)
 
+        if PORT_list == []:
+
+            sg.Popup('Plug in your Teensy to a USB port.', background_color='pink',
+                     relative_location=(-125, 0), keep_on_top=True, text_color='black')
+
+            PORT_list = list_ports.comports()
+            PORTlen = len(PORT_list)
+
+            PORTname_list = [PORT_list[i][1] for i in range(PORTlen)]
+            PORTname_list.sort()
+            PORTname_list.insert(0, '')
+            window['Serial'].update(values=PORTname_list)
+
+
     if beginSerial == 0:
+        if window['Serial'] != '':
+            window['Serial'].update('')
+
         sg.Popup('Select a port in the Serial list', background_color='pink',
                  relative_location=(-125, 0), non_blocking=True, keep_on_top=True,
                  text_color='black')
@@ -218,22 +226,36 @@ while True:
 
     if event == 'Serial':
 
-        for j in range(len(PORT_list)):
-            if PORT_list[j][1] == settings_list['Serial']:
-                PORT_index = j
+        try:
+            for j in range(len(PORT_list)):
+                if PORT_list[j][1] == settings_list['Serial']:
+                    PORT_index = j
 
-        PORT_name=PORT_list[PORT_index][0]
+            PORT_name=PORT_list[PORT_index][0]
+
+        except NameError:
+            beginSerial = 0
+            sendDefaultSettings = 0
+            PORTname_list = ['']
+            window['Serial'].update(value='', values=PORTname_list)
 
         try:
             arduino = serial.Serial(PORT_name, baudrate=9600, timeout=0.1)
             beginSerial = 1
             sendDefaultSettings = 1
 
-        except serial.SerialException:
-            PORTname_list.remove(settings_list['Serial'])
+        except NameError:
+            beginSerial = 0
+            sendDefaultSettings = 0
+            PORTname_list = ['']
             window['Serial'].update(value='', values=PORTname_list)
-            sg.Popup('You have selected the incorrect port.  Make sure the Teensy is plugged in and set to "Dual Serial" mode in the Arduino IDE.', background_color='pink',
-                     relative_location=(-125,0), keep_on_top=True, text_color='black')
+
+        except serial.SerialException:
+            if settings_list['Serial'] != '':
+                PORTname_list.remove(settings_list['Serial'])
+                window['Serial'].update(value='', values=PORTname_list)
+                sg.Popup('You have selected the incorrect port.  Make sure the Teensy is plugged in and set to "Dual Serial" mode in the Arduino IDE.', background_color='pink',
+                         relative_location=(-125,0), keep_on_top=True, text_color='black')
 
 
     if event == 'TrigLevel' and values['TrigLevel']:
