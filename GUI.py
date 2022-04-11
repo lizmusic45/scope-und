@@ -478,71 +478,74 @@ while True:
 
                 print(df)
                 
-                time = df['t'].values
+                time2 = df['t'].values
                 ch1v = df['Ch1'].values
                 ch2v = df['Ch2'].values
                 ch3v = df['Ch3'].values
                 ch4v = df['Ch4'].values
-                
-                ch1vsqr = []
-                ch1vrms = 0
-                n = len(time)
-                for i in ch1v:
-                    ch1vsqr.append(i*i)
-                ch1vrms = math.sqrt(sum(ch1vsqr)/n)
-                ch1vp = ch1vrms * 1.414
-                ch1vp_p = ch1vp * 2
-                ch1f = (math.asin(ch1v[0]/ch1vp_p))/(2*3.14*time[0])
-                ch1fns[1] = ch1vp_p
-                ch1fns[2] = ch1f
-                ch1fns[3] = ch1vrms
-                ch1fns[4] = df.min['Ch1']
-                ch1fns[5] = df.max['Ch1']
-                
-                ch2vsqr = []
-                ch2vrms = 0
-                n = len(time)
-                for i in ch2v:
-                    ch2vsqr.append(i * i)
-                ch2vrms = math.sqrt(sum(ch2vsqr) / n)
-                ch2vp = ch2vrms * 1.414
-                ch2vp_p = ch2vp * 2
-                ch2f = (math.asin(ch2v[0] / ch2vp_p)) / (2 * 3.14 * time[0])
-                ch2fns[1] = ch2vp_p
-                ch2fns[2] = ch2f
-                ch2fns[3] = ch2vrms
-                ch2fns[4] = df.min['Ch2']
-                ch2fns[5] = df.max['Ch2']
-                
-                ch3vsqr = []
-                ch3vrms = 0
-                n = len(time)
-                for i in ch3v:
-                    ch3vsqr.append(i * i)
-                ch3vrms = math.sqrt(sum(ch3vsqr) / n)
-                ch3vp = ch3vrms * 1.414
-                ch3vp_p = ch1vp * 2
-                ch3f = (math.asin(ch3v[0] / ch3vp_p)) / (2 * 3.14 * time[0])
-                ch3fns[1] = ch3vp_p
-                ch3fns[2] = ch3f
-                ch3fns[3] = ch3vrms
-                ch3fns[4] = df.min['Ch3']
-                ch3fns[5] = df.max['Ch3']
-                
-                ch4vsqr = []
-                ch4vrms = 0
-                n = len(time)
-                for i in ch4v:
-                    ch4vsqr.append(i * i)
-                ch4vrms = math.sqrt(sum(ch4vsqr) / n)
-                ch4vp = ch4vrms * 1.414
-                ch4vp_p = ch4vp * 2
-                ch4f = (math.asin(ch4v[0] / ch4vp_p)) / (2 * 3.14 * time[0])
-                ch4fns[1] = ch4vp_p
-                ch4fns[2] = ch4f
-                ch4fns[3] = ch4vrms
-                ch4fns[4] = df.min['Ch4']
-                ch4fns[5] = df.max['Ch4']
+
+                if values['Ch1']:
+                    ch1vsqr = []
+                    ch1vrms = 0
+                    n = len(time2)
+                    for i in ch1v:
+                        ch1vsqr.append(i * i)
+                    ch1vrms = round(math.sqrt(sum(ch1vsqr) / n), 2)
+                    ch1vp = ch1vrms * 1.414
+                    ch1vp_p = round(ch1vp * 2, 2)
+                    ch1f = round((math.asin(ch1v[1] / ch1vp)) / (2 * 3.14 * time2[1]), 0)
+                    ch1fns[1] = str(ch1vp_p) + ' V'
+                    ch1fns[2] = str(ch1f) + ' Hz'
+                    ch1fns[3] = str(ch1vrms) + ' V'
+                    ch1fns[4] = str(df['Ch1'].min()) + ' V'
+                    ch1fns[5] = str(df['Ch1'].max()) + ' V'
+                if values['Ch2']:
+                    ch2vsqr = []
+                    ch2vrms = 0
+                    n = len(time2)
+                    for i in ch2v:
+                        ch2vsqr.append(i * i)
+                    ch2vrms = round(math.sqrt(sum(ch2vsqr) / n), 2)
+                    ch2vp = ch2vrms * 1.414
+                    ch2vp_p = round(ch2vp * 2, 2)
+                    ch2f = round((math.asin(ch2v[1] / ch2vp)) / (2 * 3.14 * time2[1]), 0)
+                    ch2fns[1] = ch2vp_p
+                    ch2fns[2] = ch2f
+                    ch2fns[3] = ch2vrms
+                    ch2fns[4] = df['Ch2'].min()
+                    ch2fns[5] = df['Ch2'].max()
+                if values['Ch3']:
+                    ch3vsqr = []
+                    ch3vrms = 0
+                    n = len(time2)
+                    for i in ch3v:
+                        ch3vsqr.append(i * i)
+                    ch3vrms = round(math.sqrt(sum(ch3vsqr) / n), 2)
+                    ch3vp = ch3vrms * 1.414
+                    ch3vp_p = round(ch3vp * 2, 2)
+                    ch3f = round((math.asin(ch3v[1] / ch3vp)) / (2 * 3.14 * time2[1]), 0)
+                    ch3fns[1] = ch3vp_p
+                    ch3fns[2] = ch3f
+                    ch3fns[3] = ch3vrms
+                    ch3fns[4] = df['Ch3'].min()
+                    ch3fns[5] = df['Ch3'].max()
+                if values['Ch4']:
+                    ch4vsqr = []
+                    ch4vrms = 0
+                    n = len(time2)
+                    for i in ch4v:
+                        ch4vsqr.append(i * i)
+                    ch4vrms = round(math.sqrt(sum(ch4vsqr) / n), 2)
+                    ch4vp = ch4vrms * 1.414
+                    ch4vp_p = round(ch4vp * 2, 2)
+                    ch4f = round((math.asin(ch4v[1] / ch4vp)) / (2 * 3.14 * time2[1]), 0)
+                    ch4fns[1] = ch4vp_p
+                    ch4fns[2] = ch4f
+                    ch4fns[3] = ch4vrms
+                    ch4fns[4] = df['Ch4'].min()
+                    ch4fns[5] = df['Ch4'].max()
+                window['Functions'].update(values=([ch1fns, ch2fns, ch3fns, ch4fns]),
+                                           row_colors=[(0, 'blue'), (1, 'orange'), (2, 'green'), (3, 'red')])
 
                 plt.figure(figsize=(6, 5), dpi=100)
                 plt.plot(df.index, ((df["Ch1"]/(V[0]*10**-VMult[0]))+20)*(4095-0)/(20+20)+0,
