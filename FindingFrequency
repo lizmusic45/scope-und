@@ -1,6 +1,3 @@
-deltas = df.diff().drop(0)
-slope = deltas['Time']/deltas['Voltage']
-zeros = 0
-for val in slope:
-    if val == 0:
-        val = zeros
+FFT1 = sy.fft(ch1v)
+freqs1 = syfp.fftfreq(len(ch1v))
+ch1f = abs(freqs1[FFT1.argmax()])
