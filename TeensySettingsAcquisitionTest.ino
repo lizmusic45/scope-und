@@ -12,10 +12,13 @@ byte chDict[16] = {B00000000, B00000010, B00001000, B00001010, B00100000, B00100
 
 int numChDict[16] = {1, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4};
 
+int us;
+
 bool printAcquisition = 0;
 
 double trigLevel = 0;
-                
+
+//double t = pow(us, -6);
 
 void setup() {
   // put your setup code here, to run once:
@@ -46,6 +49,8 @@ void loop() {
 
       trigLevel = triggerValue(settings_bytes[13],settings_bytes[14],settings_bytes[15],
                                settings_bytes[16],settings_bytes[17]);
+
+      us = ((int(settings_bytes[9])-48)*pow(10,int(settings_bytes[10])-48)*5)/500;
     }
 
     if (start_byte == 'a') {
@@ -109,10 +114,14 @@ void loop() {
   if (printAcquisition == 1) {
     //add switch case later
     for(int x=0;x<100;x++){
-      float y = float(x)/36;
+      float y = 2*440*3.14*us*x*pow(10, -6);
+      float z1 = sin(y);
+      float z2 = 2+cos(y*10);
+      float z3 = sin(y*2);
+      float z4 = cos(y*5)/3;
 
       if ((chDict[settings_bytes[0]-65] & B10000000)==128) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z1);
       }
       else {
         SerialUSB1.print(0);
@@ -120,7 +129,7 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00100000)==32) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z2);
       }
       else {
         SerialUSB1.print(0);
@@ -128,7 +137,7 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00001000)==8) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z3);
       }
       else {
         SerialUSB1.print(0);
@@ -136,23 +145,27 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00000010)==2) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z4);
       }
       else {
         SerialUSB1.print(0);
       }
       SerialUSB1.print(',');
       
-      SerialUSB1.print(x);
+      SerialUSB1.print(us*x);
       SerialUSB1.print('\n');
     }
     SerialUSB1.print('e');
 
     for(int x=100;x<200;x++){
-      float y = float(x)/36;
+      float y = 2*440*3.14*us*x*pow(10, -6);
+      float z1 = sin(y);
+      float z2 = 2+cos(y*10);
+      float z3 = sin(y*2);
+      float z4 = cos(y*5)/3;
 
       if ((chDict[settings_bytes[0]-65] & B10000000)==128) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z1);
       }
       else {
         SerialUSB1.print(0);
@@ -160,7 +173,7 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00100000)==32) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z2);
       }
       else {
         SerialUSB1.print(0);
@@ -168,7 +181,7 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00001000)==8) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z3);
       }
       else {
         SerialUSB1.print(0);
@@ -176,23 +189,27 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00000010)==2) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z4);
       }
       else {
         SerialUSB1.print(0);
       }
       SerialUSB1.print(',');
       
-      SerialUSB1.print(x);
+      SerialUSB1.print(us*x);
       SerialUSB1.print('\n');
     }
     SerialUSB1.print('f');
 
     for(int x=200;x<300;x++){
-      float y = float(x)/36;
+      float y = 2*440*3.14*us*x*pow(10, -6);
+      float z1 = sin(y);
+      float z2 = 2+cos(y*10);
+      float z3 = sin(y*2);
+      float z4 = cos(y*5)/3;
 
       if ((chDict[settings_bytes[0]-65] & B10000000)==128) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z1);
       }
       else {
         SerialUSB1.print(0);
@@ -200,7 +217,7 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00100000)==32) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z2);
       }
       else {
         SerialUSB1.print(0);
@@ -208,7 +225,7 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00001000)==8) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z3);
       }
       else {
         SerialUSB1.print(0);
@@ -216,23 +233,27 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00000010)==2) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z4);
       }
       else {
         SerialUSB1.print(0);
       }
       SerialUSB1.print(',');
       
-      SerialUSB1.print(x);
+      SerialUSB1.print(us*x);
       SerialUSB1.print('\n');
     }
     SerialUSB1.print('g');
 
     for(int x=300;x<400;x++){
-      float y = float(x)/36;
+      float y = 2*440*3.14*us*x*pow(10, -6);
+      float z1 = sin(y);
+      float z2 = 2+cos(y*10);
+      float z3 = sin(y*2);
+      float z4 = cos(y*5)/3;
 
       if ((chDict[settings_bytes[0]-65] & B10000000)==128) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z1);
       }
       else {
         SerialUSB1.print(0);
@@ -240,7 +261,7 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00100000)==32) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z2);
       }
       else {
         SerialUSB1.print(0);
@@ -248,7 +269,7 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00001000)==8) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z3);
       }
       else {
         SerialUSB1.print(0);
@@ -256,23 +277,27 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00000010)==2) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z4);
       }
       else {
         SerialUSB1.print(0);
       }
       SerialUSB1.print(',');
       
-      SerialUSB1.print(x);
+      SerialUSB1.print(us*x);
       SerialUSB1.print('\n');
     }
     SerialUSB1.print('h');
 
     for(int x=400;x<500;x++){
-      float y = float(x)/36;
+      float y = 2*440*3.14*us*x*pow(10, -6);
+      float z1 = sin(y);
+      float z2 = 2+cos(y*10);
+      float z3 = sin(y*2);
+      float z4 = cos(y*5)/3;
 
       if ((chDict[settings_bytes[0]-65] & B10000000)==128) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z1);
       }
       else {
         SerialUSB1.print(0);
@@ -280,7 +305,7 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00100000)==32) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z2);
       }
       else {
         SerialUSB1.print(0);
@@ -288,7 +313,7 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00001000)==8) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z3);
       }
       else {
         SerialUSB1.print(0);
@@ -296,14 +321,14 @@ void loop() {
       SerialUSB1.print(',');
 
       if ((chDict[settings_bytes[0]-65] & B00000010)==2) {
-        SerialUSB1.print(sin(y));
+        SerialUSB1.print(z4);
       }
       else {
         SerialUSB1.print(0);
       }
       SerialUSB1.print(',');
       
-      SerialUSB1.print(x);
+      SerialUSB1.print(us*x);
       SerialUSB1.print('\n');
     }
     SerialUSB1.print('i');
