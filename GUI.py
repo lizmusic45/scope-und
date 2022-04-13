@@ -529,7 +529,7 @@ while True:
                     ch1fns[4] = ch1vmin
                     ch1fns[5] = ch1vmax
                 else:
-                    ch1fns = ['-', '-', '-', '-', '-']
+                    ch1fns = ['-', '-', '-', '-', '-', '-']
                 if values['Ch2']:
                     ch2vsqr = []
                     ch2vrms = 0
@@ -550,7 +550,7 @@ while True:
                     ch2fns[4] = ch2vmin
                     ch2fns[5] = ch2vmax
                 else:
-                    ch2fns = ['-', '-', '-', '-', '-']
+                    ch2fns = ['-', '-', '-', '-', '-', '-']
                 if values['Ch3']:
                     ch3vsqr = []
                     ch3vrms = 0
@@ -571,7 +571,7 @@ while True:
                     ch3fns[4] = ch3vmin
                     ch3fns[5] = ch3vmax
                 else:
-                    ch3fns = ['-', '-', '-', '-', '-']
+                    ch3fns = ['-', '-', '-', '-', '-', '-']
                 if values['Ch4']:
                     ch4vsqr = []
                     ch4vrms = 0
@@ -592,7 +592,7 @@ while True:
                     ch4fns[4] = ch4vmin
                     ch4fns[5] = ch4vmax
                 else:
-                    ch4fns = ['-', '-', '-', '-', '-']
+                    ch4fns = ['-', '-', '-', '-', '-', '-']
                 window['Functions'].update(values=([ch1fns, ch2fns, ch3fns, ch4fns]),
                                            row_colors=[(0, 'dodger blue', '#242834'), (1, 'dark orange', '#242834'),
                                                        (2, 'green2', '#242834'), (3, 'red', '#242834')])
