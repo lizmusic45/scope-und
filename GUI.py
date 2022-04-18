@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import matplotlib as mpl
 formatterV = mpl.ticker.EngFormatter(places=2, unit='V')
 formatterF = mpl.ticker.EngFormatter(places=2, unit='Hz')
+formatterS = mpl.ticker.EngFormatter(places=0, unit='sps')
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -136,6 +137,10 @@ ch4fns = ['Ch4', '-', '-', '-', '-', '-']
 #------------------the table headings-----------------------------------------------------
 headings = ['CH', 'Pk-to-Pk', 'Freq', 'RMS', 'Min', 'Max']
 
+hold = [sg.Checkbox('Hold Screen', default=False, key='Hold', disabled=True)]
+sampleText = [sg.Text('Sample Rate:')]
+sample = [sg.Text('20 ksps', key='Sample Rate', pad=((20,0), (0,0)))]
+
 fns = [
         sg.Button('Submit', font=('Times New Roman', 12), pad=((70,0), (0,0))),
         sg.Checkbox('Acquire', default=False, key='Acquire', enable_events=True),
@@ -148,10 +153,10 @@ fns = [
                           row_colors=[(0, 'dodger blue', '#242834'), (1, 'red', '#242834'),
                                       (2, 'green2', '#242834'), (3, 'dark orange', '#242834')],
                           hide_vertical_scroll=True, justification='center', key='Functions'),
-                 sg.Checkbox('Hold Screen', default=False, key='Hold', disabled=True)
+                sg.Column([hold, sampleText, sample])
                 ]
             ],
-        pad=((100, 0), (0, 0)),
+        pad=((95, 0), (0, 0)),
         title_color='yellow',
         border_width=10),
 
@@ -529,7 +534,7 @@ while True:
                     ch1fns[4] = ch1vmin
                     ch1fns[5] = ch1vmax
                 else:
-                    ch1fns = ['-', '-', '-', '-', '-', '-']
+                    ch1fns = ['Ch1', '-', '-', '-', '-', '-']
                 if values['Ch2']:
                     ch2vsqr = []
                     ch2vrms = 0
@@ -543,14 +548,17 @@ while True:
                     FFT2 = sy.fftpack.fft(ch2vNoDC)
                     FFT2norm = 2/len(ch2vNoDC) * np.abs(FFT2)
                     freqs2 = sy.fftpack.fftfreq(len(ch2vNoDC), (time2[-1]/len(ch2vNoDC))) * 10**6
-                    ch2f = formatterF(freqs2[FFT2norm.argmax()])
+                    if len(FFT2norm) == 0:
+                        ch2f = 'DC'
+                    else:
+                        ch2f = formatterF(freqs2[FFT2norm.argmax()])
                     ch2fns[1] = ch2vp_p
                     ch2fns[2] = ch2f
                     ch2fns[3] = ch2vrms
                     ch2fns[4] = ch2vmin
                     ch2fns[5] = ch2vmax
                 else:
-                    ch2fns = ['-', '-', '-', '-', '-', '-']
+                    ch2fns = ['Ch2', '-', '-', '-', '-', '-']
                 if values['Ch3']:
                     ch3vsqr = []
                     ch3vrms = 0
@@ -571,7 +579,7 @@ while True:
                     ch3fns[4] = ch3vmin
                     ch3fns[5] = ch3vmax
                 else:
-                    ch3fns = ['-', '-', '-', '-', '-', '-']
+                    ch3fns = ['Ch3', '-', '-', '-', '-', '-']
                 if values['Ch4']:
                     ch4vsqr = []
                     ch4vrms = 0
@@ -592,10 +600,13 @@ while True:
                     ch4fns[4] = ch4vmin
                     ch4fns[5] = ch4vmax
                 else:
-                    ch4fns = ['-', '-', '-', '-', '-', '-']
+                    ch4fns = ['Ch4', '-', '-', '-', '-', '-']
                 window['Functions'].update(values=([ch1fns, ch2fns, ch3fns, ch4fns]),
                                            row_colors=[(0, 'dodger blue', '#242834'), (1, 'red', '#242834'),
                                                        (2, 'green2', '#242834'), (3, 'dark orange', '#242834')])
+
+                sps = formatterS(1/((time2[-1]*10**(-6))/500))
+                window['Sample Rate'].update(sps)
 
                 plt.figure(1, figsize=(9, 5), dpi=100, facecolor='#242834')
                 ax = plt.axes()
