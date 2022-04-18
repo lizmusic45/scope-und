@@ -145,8 +145,8 @@ fns = [
             [
                 [sg.Table(values=([ch1fns, ch2fns, ch3fns, ch4fns]), headings=headings,
                           auto_size_columns=False, col_widths=[14, 14, 14, 14, 14, 14], num_rows=4,
-                          row_colors=[(0, 'dodger blue', '#242834'), (1, 'dark orange', '#242834'),
-                                      (2, 'green2', '#242834'), (3, 'red', '#242834')],
+                          row_colors=[(0, 'dodger blue', '#242834'), (1, 'red', '#242834'),
+                                      (2, 'green2', '#242834'), (3, 'dark orange', '#242834')],
                           hide_vertical_scroll=True, justification='center', key='Functions'),
                  sg.Checkbox('Hold Screen', default=False, key='Hold', disabled=True)
                 ]
@@ -594,8 +594,8 @@ while True:
                 else:
                     ch4fns = ['-', '-', '-', '-', '-', '-']
                 window['Functions'].update(values=([ch1fns, ch2fns, ch3fns, ch4fns]),
-                                           row_colors=[(0, 'dodger blue', '#242834'), (1, 'dark orange', '#242834'),
-                                                       (2, 'green2', '#242834'), (3, 'red', '#242834')])
+                                           row_colors=[(0, 'dodger blue', '#242834'), (1, 'red', '#242834'),
+                                                       (2, 'green2', '#242834'), (3, 'dark orange', '#242834')])
 
                 plt.figure(1, figsize=(9, 5), dpi=100, facecolor='#242834')
                 ax = plt.axes()
