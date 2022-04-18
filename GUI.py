@@ -610,9 +610,9 @@ while True:
                 plt.xticks(np.arange(0, 500, 100))  # will eventually be 0, 500, 100
                 plt.tick_params(grid_alpha=0.5)
                 plt.plot(df.index, (((df["Ch1"]*4)/(V[0]*10**-VMult[0]))+20)*(4095-0)/(20+20)+0, 'blue',
-                         df.index, (((df["Ch2"]*4)/(V[1]*10**-VMult[1]))+20)*(4095-0)/(20+20)+0, 'orange',
+                         df.index, (((df["Ch2"]*4)/(V[1]*10**-VMult[1]))+20)*(4095-0)/(20+20)+0, 'red',
                          df.index, (((df["Ch3"]*4)/(V[2]*10**-VMult[2]))+20)*(4095-0)/(20+20)+0, 'green',
-                         df.index, (((df["Ch4"]*4)/(V[3]*10**-VMult[3]))+20)*(4095-0)/(20+20)+0, 'red')
+                         df.index, (((df["Ch4"]*4)/(V[3]*10**-VMult[3]))+20)*(4095-0)/(20+20)+0, 'orange')
 
                 fig = plt.gcf()
 
